@@ -27,6 +27,10 @@ export async function POST(req) {
       email,
       password: hashedPassword,
       createdAt: new Date(),
+      name: "",
+      nickname: "", 
+      chats_arr: [],
+      frnd_arr: [],
     });
 
     // Create JWT token
