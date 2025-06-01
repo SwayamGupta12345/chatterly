@@ -6,6 +6,7 @@ export async function createMessage({ senderName, text }) {
   const result = await db.collection('messages').insertOne({
     senderName,
     text,
+    role, //user or ai
     timestamp: new Date()
   });
   return result.insertedId;
