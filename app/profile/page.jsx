@@ -25,11 +25,7 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch("/api/profile", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+      const response = await fetch("/api/profile") // ❌ No headers needed
       const data = await response.json()
       if (response.ok) {
         setFormData(data.user)
