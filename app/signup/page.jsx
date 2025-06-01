@@ -1,5 +1,5 @@
 "use client"
-
+import { signIn } from "next-auth/react"
 import { useState } from "react"
 import { Eye, EyeOff, BookOpen, ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -196,6 +196,16 @@ export default function SignupPage() {
             </button>
           </form>
 
+          <div className="my-6 text-center">
+            <p className="text-gray-500 mb-2">or sign up with</p>
+            <button
+              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+              className="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:shadow transition-all duration-300 flex items-center justify-center"
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google" className="w-5 h-5 mr-2" />
+              Continue with Google
+            </button>
+          </div>
           {/* Login Link */}
           <div className="text-center mt-8">
             <p className="text-gray-600">
