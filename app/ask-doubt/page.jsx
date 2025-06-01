@@ -8,6 +8,7 @@ import axios from "axios"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { FaCopy, FaWhatsapp, FaEnvelope } from "react-icons/fa";
+import { getSession } from "next-auth/react"
 
 
 export default function AskDoubtPage() {
@@ -30,16 +31,18 @@ export default function AskDoubtPage() {
 
   // ✅ Get email from localStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const email = localStorage.getItem("email")
-      if (email) {
-        setUserEmail(email)
+    const fetchSession = async () => {
+      const session = await getSession()
+      if (session?.user?.email) {
+        setUserEmail(session.user.email)
       } else {
         setMessages([
           { role: "bot", text: "⚠️ Please log in again. User session is missing." }
         ])
       }
     }
+
+    fetchSession()
   }, [])
 
   // ✅ Fetch previous chat history
@@ -194,11 +197,12 @@ export default function AskDoubtPage() {
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-xl px-4 py-3 rounded-xl shadow-md ${msg.role === "user"
-                      ? "bg-purple-100 text-right rounded-br-none"
-                      : "bg-blue-100 text-left rounded-bl-none"
+                    className={`px-4 py-3 rounded-xl shadow-md ${msg.role === "user"
+                        ? "max-w-md bg-purple-100 text-right rounded-br-none"
+                        : "w-full md:max-w-3xl bg-blue-100 text-left rounded-bl-none"
                       }`}
                   >
+
                     <div className="text-xs font-semibold mb-1">
                       {msg.role === "user" ? "You" : "Bot"}
                     </div>
@@ -248,15 +252,17 @@ export default function AskDoubtPage() {
                               </div>
                             ),
                           table: ({ children }) => (
-                            <table style={{
-                              width: '100%',
-                              borderCollapse: 'collapse',
-                              marginTop: '10px',
-                              marginBottom: '10px',
-                              border: '1px solid #888'
-                            }}>
-                              {children}
-                            </table>
+                            <div style={{ overflowX: 'auto' }}>
+                              <table style={{
+                                minWidth: '500px', // ensure scroll triggers on smaller screens
+                                borderCollapse: 'collapse',
+                                marginTop: '10px',
+                                marginBottom: '10px',
+                                border: '1px solid #888'
+                              }}>
+                                {children}
+                              </table>
+                            </div>
                           ),
                           thead: ({ children }) => <thead style={{ backgroundColor: '#e5e7eb' }}>{children}</thead>,
                           tbody: ({ children }) => <tbody>{children}</tbody>,
