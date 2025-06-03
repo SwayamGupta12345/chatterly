@@ -222,18 +222,31 @@ export default function AskDoubtClient() {
 
   return (
     <Suspense fallback={null}>
-      <div className="min-h-screen flex bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
         {/* Sidebar */}
         <div className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
           <div className="p-6">
-            <div className="flex items-center space-x-2 mb-8">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  Askdemia
+                </span>
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Askdemia
-              </span>
+
+              {/* Close button pushed to the right */}
+              <div className="flex-1 flex justify-end lg:hidden">
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-1 hover:bg-gray-200 rounded-md"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
             </div>
+
             <nav className="space-y-2">
               <Link href="/dashboard" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
                 <LayoutDashboard className="w-5 h-5" />
@@ -295,9 +308,9 @@ export default function AskDoubtClient() {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors z-100"
                 >
-                  {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                  {isSidebarOpen ? <X className="w-6 h-6 " /> : <Menu className="w-6 h-6" />}
                 </button>
                 <Link
                   href="/dashboard"
@@ -329,7 +342,7 @@ export default function AskDoubtClient() {
             <h1 className="text-xl font-bold mb-4">Chat: {convoId || "No convo selected"}</h1>
             {/* render your chat UI using messages */}
           </div>
-          <main className="flex-1 relative overflow-hidden">
+          <main className="flex-1 relative overflow-x-hidden">
             <div className="h-full flex flex-col">
               <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 pb-32">
                 {messages.map((msg, idx) => (
@@ -338,15 +351,15 @@ export default function AskDoubtClient() {
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`px-4 py-3 rounded-xl shadow-md ${msg.role === "user"
-                        ? "max-w-md bg-purple-100 text-right rounded-br-none"
-                        : "w-full md:max-w-4xl overflow-x-auto bg-blue-100 text-left rounded-bl-none"
+                      className={`px-4 py-3 rounded-xl shadow-md break-words ${msg.role === "user"
+                        ? "bg-purple-100 text-right rounded-br-none self-end max-w-fit max-w-[70%] sm:max-w-md"
+                        : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
                         }`}
                     >
                       <div className="text-xs font-semibold mb-1">
                         {msg.role === "user" ? "You" : "Bot"}
                       </div>
-                      <div className="markdown-content text-sm text-gray-800 overflow-x-auto">
+                      <div className="markdown-content text-sm text-gray-800 overflow-x-hidden">
                         <div className="min-w-full">
                           {/* <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
@@ -430,7 +443,6 @@ export default function AskDoubtClient() {
                           >
                             {msg.text}
                           </ReactMarkdown> */}
-
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
@@ -460,7 +472,7 @@ export default function AskDoubtClient() {
                                         onClick={() => handleCopy(Array.isArray(children) ? children.join('') : children)}
                                         title="Copy"
                                         className="action-button"
-                                        style={{ background: 'none', color:'white', border: 'none', cursor: 'pointer' }}
+                                        style={{ background: 'none', color: 'white', border: 'none', cursor: 'pointer' }}
                                       >
                                         <FaCopy />
                                       </button>
@@ -468,7 +480,7 @@ export default function AskDoubtClient() {
                                         onClick={() => sendToWhatsApp(children)}
                                         title="Share via WhatsApp"
                                         className="action-button"
-                                        style={{ background: 'none', color:'white', border: 'none', cursor: 'pointer' }}
+                                        style={{ background: 'none', color: 'white', border: 'none', cursor: 'pointer' }}
                                       >
                                         <FaWhatsapp />
                                       </button>
@@ -476,7 +488,7 @@ export default function AskDoubtClient() {
                                         onClick={() => sendToGmail(children)}
                                         title="Send via Email"
                                         className="action-button"
-                                        style={{ background: 'none', color:'white', border: 'none', cursor: 'pointer' }}
+                                        style={{ background: 'none', color: 'white', border: 'none', cursor: 'pointer' }}
                                       >
                                         <FaEnvelope />
                                       </button>
@@ -518,7 +530,7 @@ export default function AskDoubtClient() {
                               <FaCopy />
                               Copy
                             </button>
-                          </div>  
+                          </div>
                         )}
                       </div>
                     </div>
