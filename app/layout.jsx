@@ -22,9 +22,9 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Askdemia - Learn Smarter, Not Harder",
+  title: "Chatterly - Lets chat with friends and AI altogether",
   description:
-    "Join thousands of students who are revolutionizing their learning experience with collaborative study tools and expert guidance.",
+    "Join thousands of people who are revolutionizing their Working experience with collaborative AI assistance with friends.",
 };
 
 export default function RootLayout({ children }) {
