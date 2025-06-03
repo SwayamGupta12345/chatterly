@@ -57,7 +57,7 @@ export default function AskDoubtPage() {
     const fetchFriends = async () => {
       const res = await fetch(`/api/get-friends?email=${userEmail}`);
       const data = await res.json();
-      setFriends(data.friends);
+      setFriends(data.friends.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)));
 
       // ✅ Load last chat after setting friends
       const lastId = localStorage.getItem("lastChatboxId");
@@ -97,7 +97,20 @@ export default function AskDoubtPage() {
 
     socket.current.on("receive-message", (message) => {
       setMessages((prev) => [...prev, message]);
+
+      // Dynamically reorder the friends list
+      setFriends(prevFriends => {
+        const updated = prevFriends.map(f => {
+          if (f.chatbox_id === message.chatboxId) {
+            return { ...f, lastModified: new Date().toISOString() };
+          }
+          return f;
+        });
+
+        return updated.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+      });
     });
+
     return () => {
       socket.current?.off("receive-message");
       socket.current?.disconnect();
@@ -156,7 +169,11 @@ export default function AskDoubtPage() {
           return; // exit early if add-friend failed
         }
 
-        setFriends(prev => [...prev, newFriend]);
+        setFriends(prev => {
+          const updated = [...prev, newFriend];
+          return updated.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+        });
+
         handleFriendSelect(newFriend);
       } else {
         alert(data.message || "Failed to create chat.");
@@ -205,18 +222,31 @@ export default function AskDoubtPage() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
       {/* Sidebar */}
       <div className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
         <div className="p-6">
-          <div className="flex items-center space-x-2 mb-8">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-white" />
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Askdemia
+              </span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Askdemia
-            </span>
+
+            {/* Close button pushed to the right */}
+            <div className="flex-1 flex justify-end lg:hidden">
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="p-1 hover:bg-gray-200 rounded-md"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
           </div>
+
           <nav className="space-y-2">
             <Link href="/dashboard" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
               <LayoutDashboard className="w-5 h-5" />
@@ -308,120 +338,111 @@ export default function AskDoubtPage() {
                   className={`flex ${msg.senderEmail === userEmail ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`px-4 py-3 rounded-xl shadow-md ${msg.senderEmail === userEmail
-                      ? "max-w-md bg-purple-100 text-right rounded-br-none"
-                      : "'bg-blue-100 text-left rounded-bl-none self-start"
+                    className={`px-4 py-3 rounded-xl shadow-md max-w-[100vw] md:max-w-md ${msg.senderEmail === userEmail
+                      ? "bg-purple-100 text-right rounded-br-none"
+                      : "bg-blue-100 text-left rounded-bl-none self-start"
                       }`}
-
                   >
-                     <div className="text-xs font-semibold mb-1">
+                    <div className="text-xs font-semibold mb-1">
                       {msg.senderEmail === userEmail ? "You" : selectedFriend?.nickname || "Friend"}
                     </div>
-                    <div className="markdown-content text-sm text-gray-800 overflow-x-auto">
-                      <div className="min-w-full">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            p: ({ children }) => {
-                              const isPre = React.Children.toArray(children).some(
-                                (child) => typeof child === 'object' && child?.type === 'pre'
-                              );
-                              return isPre ? <>{children}</> : <p>{children}</p>;
-                            },
-                            a: ({ href, children }) => (
-                              <a href={href} style={{ color: '#6cf', textDecoration: 'underline' }}>{children}</a>
-                            ),
-                            li: ({ children }) => <li>{children}</li>,
-                            code: ({ inline, children }) =>
-                              inline ? (
-                                <code style={{
-                                  backgroundColor: '#333',
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  display: 'inline-block',
-                                  textAlign: 'left',
-                                }}>
-                                  {children}
-                                </code>
-                              ) : (
-                                <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                  <pre className="bg-gray-800 text-white p-4 rounded-md overflow-x-auto text-sm jus">
-                                    <code>
-                                      {typeof children === 'string'
-                                        ? children
-                                        : Array.isArray(children)
-                                          ? children.join('')
-                                          : ''}
-                                    </code>
-                                  </pre>
-                                  <div style={{ position: 'absolute', top: 6, right: 8, display: 'flex', gap: '8px' }}>
-                                    <button
-                                      onClick={() => handleCopy(Array.isArray(children) ? children.join('') : children)}
-                                      title="Copy"
-                                      className="action-button"
-                                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                    >
-                                      <FaCopy />
-                                    </button>
-                                    <button
-                                      onClick={() => sendToWhatsApp(children)}
-                                      title="Share via WhatsApp"
-                                      className="action-button"
-                                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                    >
-                                      <FaWhatsapp />
-                                    </button>
-                                    <button
-                                      onClick={() => sendToGmail(children)}
-                                      title="Send via Email"
-                                      className="action-button"
-                                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                    >
-                                      <FaEnvelope />
-                                    </button>
-                                  </div>
+                    <div className="markdown-content text-sm text-gray-800 max-w-[90vw] md:max-w-md overflow-x-auto whitespace-pre-wrap break-words">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          p: ({ children }) => {
+                            const isPre = React.Children.toArray(children).some(
+                              (child) => typeof child === 'object' && child?.type === 'pre'
+                            );
+                            return isPre ? <>{children}</> : <p>{children}</p>;
+                          },
+                          a: ({ href, children }) => (
+                            <a href={href} style={{ color: '#6cf', textDecoration: 'underline' }}>{children}</a>
+                          ),
+                          li: ({ children }) => <li>{children}</li>,
+                          code: ({ inline, children }) =>
+                            inline ? (
+                              <code style={{ backgroundColor: '#333', padding: '2px 6px', borderRadius: '4px' }}>
+                                {children}
+                              </code>
+                            ) : (
+                              <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                                <pre className="bg-gray-800 text-white p-4 rounded-md overflow-x-auto text-sm max-w-full">
+                                  <code>
+                                    {typeof children === 'string'
+                                      ? children
+                                      : Array.isArray(children)
+                                        ? children.join('')
+                                        : ''}
+                                  </code>
+                                </pre>
+                                <div style={{ position: 'absolute', top: 6, right: 8, display: 'flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => handleCopy(Array.isArray(children) ? children.join('') : children)}
+                                    title="Copy"
+                                    className="action-button"
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                  >
+                                    <FaCopy />
+                                  </button>
+                                  <button
+                                    onClick={() => sendToWhatsApp(children)}
+                                    title="Share via WhatsApp"
+                                    className="action-button"
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                  >
+                                    <FaWhatsapp />
+                                  </button>
+                                  <button
+                                    onClick={() => sendToGmail(children)}
+                                    title="Send via Email"
+                                    className="action-button"
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                  >
+                                    <FaEnvelope />
+                                  </button>
                                 </div>
-                              ),
-                            table: ({ children }) => (
-                              <div style={{ overflowX: 'auto' }}>
-                                <table className="min-w-[500px] table-auto border border-gray-400 text-sm">
-                                  {children}
-                                </table>
                               </div>
                             ),
-                            thead: ({ children }) => <thead style={{ backgroundColor: '#e5e7eb' }}>{children}</thead>,
-                            tbody: ({ children }) => <tbody>{children}</tbody>,
-                            tr: ({ children }) => <tr style={{ borderBottom: '1px solid #888' }}>{children}</tr>,
-                            th: ({ children }) => (
-                              <th className="border border-gray-400 bg-gray-200 px-4 py-2 text-left font-medium">
+                          table: ({ children }) => (
+                            <div style={{ overflowX: 'auto' }}>
+                              <table className="min-w-[500px] table-auto border border-gray-400 text-sm">
                                 {children}
-                              </th>
-                            ),
-                            td: ({ children }) => (
-                              <td className="border border-gray-300 px-4 py-2 text-left">
-                                {children}
-                              </td>
-                            ),
-                          }}
-                          suppressHydrationWarning
-                        >
-                          {msg.text}
-                        </ReactMarkdown>
-  
-                      </div>
-                      {msg.role === "bot" && (
-                        <div className="flex justify-end mt-2">
-                          <button
-                            onClick={() => handleCopy(msg.text)}
-                            title="Copy bot message"
-                            className="flex items-center gap-1 text-sm text-gray-600 hover:text-purple-600 transition"
-                          >
-                            <FaCopy />
-                            Copy
-                          </button>
-                        </div>
-                      )}
+                              </table>
+                            </div>
+                          ),
+                          thead: ({ children }) => <thead style={{ backgroundColor: '#e5e7eb' }}>{children}</thead>,
+                          tbody: ({ children }) => <tbody>{children}</tbody>,
+                          tr: ({ children }) => <tr style={{ borderBottom: '1px solid #888' }}>{children}</tr>,
+                          th: ({ children }) => (
+                            <th className="border border-gray-400 bg-gray-200 px-4 py-2 text-left font-medium">
+                              {children}
+                            </th>
+                          ),
+                          td: ({ children }) => (
+                            <td className="border border-gray-300 px-4 py-2 text-left">
+                              {children}
+                            </td>
+                          ),
+                        }}
+                        suppressHydrationWarning
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
+
                     </div>
+                    {msg.role === "bot" && (
+                      <div className="flex justify-end mt-2">
+                        <button
+                          onClick={() => handleCopy(msg.text)}
+                          title="Copy bot message"
+                          className="flex items-center gap-1 text-sm text-gray-600 hover:text-purple-600 transition"
+                        >
+                          <FaCopy />
+                          Copy
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
