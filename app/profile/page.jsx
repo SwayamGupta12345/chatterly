@@ -120,7 +120,7 @@ export default function ProfilePage() {
               <Lightbulb className="w-5 h-5" />
               <span>Chatbot</span>
             </Link>
-            <Link href="/chat1" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+            <Link href="/chat" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
               <MessageCircleMore className="w-5 h-5" />
               <span>Chat with Friends</span>
             </Link>
