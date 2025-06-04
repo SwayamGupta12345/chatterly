@@ -1,28 +1,43 @@
-'use client';
-import { Inter } from 'next/font/google'
-import { useState, useEffect, useRef } from "react"
-import { BookOpen, Lightbulb, Menu, X, User, LogOut, ArrowLeft, Send, LayoutDashboard, MessageCircleMore, Bell, MessageSquareDiff, Share, Lock } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useLayoutEffect, Suspense } from "react"
-import axios from "axios"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+"use client";
+import { Inter } from "next/font/google";
+import { useState, useEffect, useRef } from "react";
+import {
+  BookOpen,
+  Lightbulb,
+  Menu,
+  X,
+  User,
+  LogOut,
+  ArrowLeft,
+  Send,
+  LayoutDashboard,
+  MessageCircleMore,
+  Bell,
+  MessageSquareDiff,
+  Share,
+  Lock,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useLayoutEffect, Suspense } from "react";
+import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { FaCopy, FaWhatsapp, FaEnvelope } from "react-icons/fa";
-import { getSession } from "next-auth/react"
+import { getSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import React from 'react';
+import React from "react";
 
 export default function AskDoubtClient() {
   const searchParams = useSearchParams();
   const convoId = searchParams.get("convoId") || "No convoId";
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [messages, setMessages] = useState([])
-  const [input, setInput] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [userEmail, setUserEmail] = useState("")
-  const [user_ai_chats, setUser_ai_chats] = useState([])
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [user_ai_chats, setUser_ai_chats] = useState([]);
   const [showShare, setShowShare] = useState(false);
   //
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,11 +46,12 @@ export default function AskDoubtClient() {
   const [shareMessage, setShareMessage] = useState("");
   // const searchParams = useSearchParams();
   // const convoId = searchParams.get("convoId");
-  const messagesEndRef = useRef(null)
-  const inputRef = useRef(null)
-  const router = useRouter()
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const router = useRouter();
   const handleCopy = (text) => navigator.clipboard.writeText(text);
-  const sendToWhatsApp = (text) => window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+  const sendToWhatsApp = (text) =>
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
   const sendToGmail = (text) => {
     const subject = encodeURIComponent("Chatterly");
     const body = encodeURIComponent(text);
@@ -46,23 +62,26 @@ export default function AskDoubtClient() {
   // ✅ Get email from localStorage
   useEffect(() => {
     const fetchSession = async () => {
-      const session = await getSession()
+      const session = await getSession();
       if (session?.user?.email) {
-        setUserEmail(session.user.email)
+        setUserEmail(session.user.email);
       } else {
         setMessages([
-          { role: "bot", text: "⚠️ Please log in again. User session is missing." }
-        ])
+          {
+            role: "bot",
+            text: "⚠️ Please log in again. User session is missing.",
+          },
+        ]);
       }
-    }
+    };
 
-    fetchSession()
-  }, [])
+    fetchSession();
+  }, []);
 
   useEffect(() => {
     const fetchUserChats = async () => {
       try {
-        const res = await fetch('/api/fetch-ai-chats');
+        const res = await fetch("/api/fetch-ai-chats");
         const data = await res.json();
         if (res.ok) {
           setUser_ai_chats(data.chats); // or whatever state you use to render sidebar/chat list
@@ -109,7 +128,11 @@ export default function AskDoubtClient() {
           { text: pair.ai, role: "ai" },
         ]);
 
-        setMessages(formatted.length > 0 ? formatted : [{ text: "Start A Conversation", from: "system" }]);
+        setMessages(
+          formatted.length > 0
+            ? formatted
+            : [{ text: "Start A Conversation", from: "system" }]
+        );
       } catch (err) {
         console.error("Failed to load conversation", err);
         setMessages([{ text: "Start A Conversation", from: "system" }]);
@@ -118,7 +141,6 @@ export default function AskDoubtClient() {
 
     fetchConversation();
   }, [convoId]);
-
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -188,7 +210,6 @@ export default function AskDoubtClient() {
           aiResponseId,
         }),
       });
-
     } catch (err) {
       console.error("Error sending message:", err);
       setError("Something went wrong. Try again.");
@@ -262,7 +283,11 @@ export default function AskDoubtClient() {
     <Suspense fallback={null}>
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
         {/* Sidebar */}
-        <div className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
+        <div
+          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
+        >
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-2">
@@ -270,7 +295,7 @@ export default function AskDoubtClient() {
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  Askdemia
+                  Chatterly
                 </span>
               </div>
 
@@ -286,22 +311,27 @@ export default function AskDoubtClient() {
             </div>
 
             <nav className="space-y-2">
-              <Link href="/dashboard" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+              <Link
+                href="/dashboard"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              >
                 <LayoutDashboard className="w-5 h-5" />
                 <span>Dashboard</span>
               </Link>
-              <Link href="/ask-doubt" className="flex items-center space-x-3 px-4 py-3 bg-purple-100 text-purple-700 rounded-xl">
+              <Link
+                href="/ask-doubt"
+                className="flex items-center space-x-3 px-4 py-3 bg-purple-100 text-purple-700 rounded-xl"
+              >
                 <Lightbulb className="w-5 h-5" />
                 <span>Chatbot</span>
               </Link>
-              <Link href="/chat" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+              <Link
+                href="/chat"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              >
                 <MessageCircleMore className="w-5 h-5" />
                 <span>Chat with Friends</span>
               </Link>
-              {/* <Link href="/profile" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
-              <User className="w-5 h-5" />
-              <span>Profile</span>
-            </Link> */}
               <hr className="border-t-2 border-gray-400 rounded-full my-4 shadow-sm" />
               <button
                 onClick={handleNewChat}
@@ -323,17 +353,21 @@ export default function AskDoubtClient() {
                     </Link>
                   ))
                 ) : (
-                  <p className="text-xs text-gray-400 px-4 italic">No previous chats</p>
+                  <p className="text-xs text-gray-400 px-4 italic">
+                    No previous chats
+                  </p>
                 )}
               </div>
             </nav>
           </div>
           <div className="absolute bottom-6 left-6 right-6">
-            <button onClick={handleLogout} className="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full">
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full"
+            >
               <LogOut className="w-5 h-5" />
               <span>Logout</span>
             </button>
-
           </div>
         </div>
 
@@ -348,7 +382,11 @@ export default function AskDoubtClient() {
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                   className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors z-100"
                 >
-                  {isSidebarOpen ? <X className="w-6 h-6 " /> : <Menu className="w-6 h-6" />}
+                  {isSidebarOpen ? (
+                    <X className="w-6 h-6 " />
+                  ) : (
+                    <Menu className="w-6 h-6" />
+                  )}
                 </button>
                 <Link
                   href="/dashboard"
@@ -369,7 +407,6 @@ export default function AskDoubtClient() {
                   <Share className="w-5 h-5 text-gray-600 mr-2" />
                   <span className="hidden sm:inline">Share</span>
                 </button>
-
 
                 <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
                   <Bell className="w-6 h-6 text-gray-600" />
@@ -398,7 +435,9 @@ export default function AskDoubtClient() {
                 <h2 className="text-lg font-semibold mb-4">Share this page</h2>
 
                 {/* Add people */}
-                <label className="block text-sm font-medium mb-1">Add people and groups</label>
+                <label className="block text-sm font-medium mb-1">
+                  Add people and groups
+                </label>
                 <input
                   type="text"
                   value={searchQuery}
@@ -409,7 +448,6 @@ export default function AskDoubtClient() {
                   placeholder="Enter email or nickname"
                   className="w-full border border-gray-300 rounded-lg p-2 text-sm mb-4"
                 />
-
 
                 {/* Message */}
                 <textarea
@@ -424,7 +462,9 @@ export default function AskDoubtClient() {
                 <div className="text-xs text-gray-600 mb-2">General access</div>
                 <div className="flex items-center gap-2 text-sm text-gray-700 mb-4">
                   <Lock className="w-4 h-4 text-gray-500" />
-                  <span>Restricted — Only people with access can open with the link</span>
+                  <span>
+                    Restricted — Only people with access can open with the link
+                  </span>
                 </div>
 
                 {/* Buttons */}
@@ -438,7 +478,7 @@ export default function AskDoubtClient() {
                   <button
                     onClick={handleSendShare}
                     className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                  // disabled={!selectedUser}
+                    // disabled={!selectedUser}
                   >
                     Send
                   </button>
@@ -447,10 +487,11 @@ export default function AskDoubtClient() {
             </div>
           )}
 
-
           {/* Chat Body */}
           <div className="p-6">
-            <h1 className="text-xl font-bold mb-4">Chat: {convoId || "No convo selected"}</h1>
+            <h1 className="text-xl font-bold mb-4">
+              Chat: {convoId || "No convo selected"}
+            </h1>
             {/* render your chat UI using messages */}
           </div>
           <main className="flex-1 relative overflow-x-hidden">
@@ -459,131 +500,90 @@ export default function AskDoubtClient() {
                 {messages.map((msg, idx) => (
                   <div
                     key={idx}
-                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                    className={`flex ${
+                      msg.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                   >
                     <div
-                      className={`px-4 py-3 rounded-xl shadow-md break-words ${msg.role === "user"
-                        ? "bg-purple-100 text-right rounded-br-none self-end max-w-fit max-w-[70%] sm:max-w-md"
-                        : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
-                        }`}
+                      className={`px-4 py-3 rounded-xl shadow-md break-words ${
+                        msg.role === "user"
+                          ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
+                          : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
+                      }`}
                     >
                       <div className="text-xs font-semibold mb-1">
                         {msg.role === "user" ? "You" : "Bot"}
                       </div>
                       <div className="markdown-content text-sm text-gray-800 overflow-x-hidden">
                         <div className="min-w-full">
-                          {/* <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            components={{
-                              p: ({ children }) => {
-                                const isPre = React.Children.toArray(children).some(
-                                  (child) => typeof child === 'object' && child?.type === 'pre'
-                                );
-                                return isPre ? <>{children}</> : <p>{children}</p>;
-                              },
-                              a: ({ href, children }) => (
-                                <a href={href} style={{ color: '#6cf', textDecoration: 'underline' }}>{children}</a>
-                              ),
-                              li: ({ children }) => <li>{children}</li>,
-                              code: ({ inline, children }) =>
-                                inline ? (
-                                  <code style={{ backgroundColor: '#333', padding: '2px 6px', borderRadius: '4px' }}>
-                                    {children}
-                                  </code>
-                                ) : (
-                                  <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                    <pre className="bg-gray-800 text-white p-4 rounded-md overflow-x-auto text-sm">
-                                      <code>
-                                        {typeof children === 'string'
-                                          ? children
-                                          : Array.isArray(children)
-                                            ? children.join('')
-                                            : ''}
-                                      </code>
-                                    </pre>
-                                    <div style={{ position: 'absolute', top: 6, right: 8, display: 'flex', gap: '8px' }}>
-                                      <button
-                                        onClick={() => handleCopy(Array.isArray(children) ? children.join('') : children)}
-                                        title="Copy"
-                                        className="action-button"
-                                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                      >
-                                        <FaCopy />
-                                      </button>
-                                      <button
-                                        onClick={() => sendToWhatsApp(children)}
-                                        title="Share via WhatsApp"
-                                        className="action-button"
-                                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                      >
-                                        <FaWhatsapp />
-                                      </button>
-                                      <button
-                                        onClick={() => sendToGmail(children)}
-                                        title="Send via Email"
-                                        className="action-button"
-                                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                      >
-                                        <FaEnvelope />
-                                      </button>
-                                    </div>
-                                  </div>
-                                ),
-                              table: ({ children }) => (
-                                <div style={{ overflowX: 'auto' }}>
-                                  <table className="min-w-[500px] table-auto border border-gray-400 text-sm">
-                                    {children}
-                                  </table>
-                                </div>
-                              ),
-                              thead: ({ children }) => <thead style={{ backgroundColor: '#e5e7eb' }}>{children}</thead>,
-                              tbody: ({ children }) => <tbody>{children}</tbody>,
-                              tr: ({ children }) => <tr style={{ borderBottom: '1px solid #888' }}>{children}</tr>,
-                              th: ({ children }) => (
-                                <th className="border border-gray-400 bg-gray-200 px-4 py-2 text-left font-medium">
-                                  {children}
-                                </th>
-                              ),
-                              td: ({ children }) => (
-                                <td className="border border-gray-300 px-4 py-2 text-left">
-                                  {children}
-                                </td>
-                              ),
-                            }}
-                            suppressHydrationWarning
-                          >
-                            {msg.text}
-                          </ReactMarkdown> */}
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
                               p: ({ children }) => <p>{children}</p>,
                               a: ({ href, children }) => (
-                                <a href={href} style={{ color: '#6cf', textDecoration: 'underline' }}>{children}</a>
+                                <a
+                                  href={href}
+                                  style={{
+                                    color: "#6cf",
+                                    textDecoration: "underline",
+                                  }}
+                                >
+                                  {children}
+                                </a>
                               ),
                               li: ({ children }) => <li>{children}</li>,
                               code: ({ inline, children }) =>
                                 inline ? (
-                                  <code style={{ backgroundColor: '#333', padding: '2px 6px', borderRadius: '4px' }}>
+                                  <code
+                                    style={{
+                                      backgroundColor: "#333",
+                                      padding: "2px 6px",
+                                      borderRadius: "4px",
+                                    }}
+                                  >
                                     {children}
                                   </code>
                                 ) : (
-                                  <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                                  <div
+                                    style={{
+                                      position: "relative",
+                                      marginBottom: "1rem",
+                                    }}
+                                  >
                                     <pre className="bg-gray-800 text-white p-4 rounded-md overflow-x-auto text-sm">
                                       <code>
-                                        {typeof children === 'string'
+                                        {typeof children === "string"
                                           ? children
                                           : Array.isArray(children)
-                                            ? children.join('')
-                                            : ''}
+                                          ? children.join("")
+                                          : ""}
                                       </code>
                                     </pre>
-                                    <div style={{ position: 'absolute', top: 6, right: 8, display: 'flex', gap: '8px' }}>
+                                    <div
+                                      style={{
+                                        position: "absolute",
+                                        top: 6,
+                                        right: 8,
+                                        display: "flex",
+                                        gap: "8px",
+                                      }}
+                                    >
                                       <button
-                                        onClick={() => handleCopy(Array.isArray(children) ? children.join('') : children)}
+                                        onClick={() =>
+                                          handleCopy(
+                                            Array.isArray(children)
+                                              ? children.join("")
+                                              : children
+                                          )
+                                        }
                                         title="Copy"
                                         className="action-button"
-                                        style={{ background: 'none', color: 'white', border: 'none', cursor: 'pointer' }}
+                                        style={{
+                                          background: "none",
+                                          color: "white",
+                                          border: "none",
+                                          cursor: "pointer",
+                                        }}
                                       >
                                         <FaCopy />
                                       </button>
@@ -591,7 +591,12 @@ export default function AskDoubtClient() {
                                         onClick={() => sendToWhatsApp(children)}
                                         title="Share via WhatsApp"
                                         className="action-button"
-                                        style={{ background: 'none', color: 'white', border: 'none', cursor: 'pointer' }}
+                                        style={{
+                                          background: "none",
+                                          color: "white",
+                                          border: "none",
+                                          cursor: "pointer",
+                                        }}
                                       >
                                         <FaWhatsapp />
                                       </button>
@@ -599,7 +604,12 @@ export default function AskDoubtClient() {
                                         onClick={() => sendToGmail(children)}
                                         title="Send via Email"
                                         className="action-button"
-                                        style={{ background: 'none', color: 'white', border: 'none', cursor: 'pointer' }}
+                                        style={{
+                                          background: "none",
+                                          color: "white",
+                                          border: "none",
+                                          cursor: "pointer",
+                                        }}
                                       >
                                         <FaEnvelope />
                                       </button>
@@ -607,15 +617,25 @@ export default function AskDoubtClient() {
                                   </div>
                                 ),
                               table: ({ children }) => (
-                                <div style={{ overflowX: 'auto' }}>
+                                <div style={{ overflowX: "auto" }}>
                                   <table className="min-w-[500px] table-auto border border-gray-400 text-sm">
                                     {children}
                                   </table>
                                 </div>
                               ),
-                              thead: ({ children }) => <thead style={{ backgroundColor: '#e5e7eb' }}>{children}</thead>,
-                              tbody: ({ children }) => <tbody>{children}</tbody>,
-                              tr: ({ children }) => <tr style={{ borderBottom: '1px solid #888' }}>{children}</tr>,
+                              thead: ({ children }) => (
+                                <thead style={{ backgroundColor: "#e5e7eb" }}>
+                                  {children}
+                                </thead>
+                              ),
+                              tbody: ({ children }) => (
+                                <tbody>{children}</tbody>
+                              ),
+                              tr: ({ children }) => (
+                                <tr style={{ borderBottom: "1px solid #888" }}>
+                                  {children}
+                                </tr>
+                              ),
                               th: ({ children }) => (
                                 <th className="border border-gray-400 bg-gray-200 px-4 py-2 text-left font-medium">
                                   {children}
@@ -627,11 +647,24 @@ export default function AskDoubtClient() {
                                 </td>
                               ),
                             }}
-                            supresshydrationerror>
+                            supresshydration
+                          >
                             {msg.text}
                           </ReactMarkdown>
                         </div>
-                        {msg.role === "bot" && (
+                        {/* {msg.role === "bot" && (
+                          <div className="flex justify-end mt-2">
+                            <button
+                              onClick={() => handleCopy(msg.text)}
+                              title="Copy bot message"
+                              className="flex items-center gap-1 text-sm text-gray-600 hover:text-purple-600 transition"
+                            >
+                              <FaCopy />
+                              Copy
+                            </button>
+                          </div>
+                        )} */}
+                        {msg.text && msg.role !== "user" && (
                           <div className="flex justify-end mt-2">
                             <button
                               onClick={() => handleCopy(msg.text)}
@@ -647,13 +680,17 @@ export default function AskDoubtClient() {
                     </div>
                   </div>
                 ))}
-                {loading && <div className="text-sm text-gray-500 animate-pulse">Bot is typing...</div>}
+                {loading && (
+                  <div className="text-sm text-gray-500 animate-pulse">
+                    Bot is typing...
+                  </div>
+                )}
                 {error && <div className="text-sm text-red-500">{error}</div>}
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Chat Input Fixed at Bottom */}
-              < div className="fixed bottom-0 left-0 right-0 lg:ml-64 bg-white/90 backdrop-blur-lg border-t border-white/20 px-6 py-4 z-50" >
+              <div className="fixed bottom-0 left-0 right-0 lg:ml-64 bg-white/90 backdrop-blur-lg border-t border-white/20 px-6 py-4 z-50">
                 <div className="flex items-center gap-2 max-w-7xl mx-auto">
                   <textarea
                     ref={inputRef}
@@ -661,8 +698,8 @@ export default function AskDoubtClient() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault()
-                        sendMessage()
+                        e.preventDefault();
+                        sendMessage();
                       }
                     }}
                     placeholder="Type your message..."
@@ -683,5 +720,5 @@ export default function AskDoubtClient() {
         </div>
       </div>
     </Suspense>
-  )
+  );
 }
