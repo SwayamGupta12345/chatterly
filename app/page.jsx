@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronRight, BookOpen, Lightbulb,Users, MessageCircle, Star, Menu, X } from "lucide-react"
+import { ChevronRight, BookOpen, Lightbulb, Users, MessageCircle, Star, Menu, X, Github, Linkedin, Mail } from "lucide-react"
 import Link from "next/link"
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
 
-  const features = [ 
+  const features = [
     {
       icon: Lightbulb,
       title: "Better Responses",
@@ -118,13 +118,13 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <section className="pt-32 pb-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <div className="animate-fade-in-up">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
-               Lets chat with friends 
+            <h1 className="text-5xl md:text-7xl font-bold pb-2  mb-6 pt-6 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
+              Lets chat with friends
               <br />
-             and AI altogether
+              and AI altogether
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               Join thousands of people who are revolutionizing their Working experience with collaborative AI assistance with friends.
@@ -149,10 +149,10 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="features" className="py-20  px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 pb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               Why Choose Chatterly?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -205,9 +205,8 @@ export default function LandingPage() {
                 <button
                   key={index}
                   onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentTestimonial ? "bg-purple-600 scale-125" : "bg-purple-200 hover:bg-purple-400"
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentTestimonial ? "bg-purple-600 scale-125" : "bg-purple-200 hover:bg-purple-400"
+                    }`}
                 />
               ))}
             </div>
@@ -216,7 +215,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-gray-900 to-purple-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+      {/* <footer className="bg-gradient-to-r from-gray-900 to-purple-900 text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
@@ -303,6 +302,127 @@ export default function LandingPage() {
                     FAQ
                   </a>
                 </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-white/10 mt-12 pt-8 text-center text-gray-300">
+            <p>&copy; 2024 Chatterly. All rights reserved.</p>
+          </div>
+        </div>
+      </footer> */}
+      <footer className="bg-gradient-to-r from-gray-900 to-purple-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-blue-400 rounded-lg flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold">Chatterly</span>
+              </div>
+              <p className="text-gray-300 mb-6 max-w-md">
+                Empowering students worldwide with collaborative AI assistance and chat system with friends for better and more effective learning.
+              </p>
+              <div className="text-sm text-gray-400 space-y-1">
+                <p className="text-white font-semibold mb-2">Made by:</p>
+
+                <div className="flex items-center space-x-4 mb-4">
+                  <img
+                    src="https://your-image-url.com/swayam.jpg"
+                    alt="Swayam Gupta"
+                    className="w-12 h-12 rounded-full border-2 border-purple-500"
+                  />
+                  <div>
+                    <p className="text-white font-medium">Swayam Gupta</p>
+                    <div className="flex space-x-3 mt-1 text-gray-300">
+                      <a
+                        href="https://github.com/SwayamGupta12345"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center hover:text-white transition-colors"
+                      >
+                        <Github className="w-4 h-4 mr-1" />
+                        GitHub
+                      </a>
+                      <a
+                        href="https://linkedin.com/in/swayamgupta"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center hover:text-white transition-colors"
+                      >
+                        <Linkedin className="w-4 h-4 mr-1" />
+                        LinkedIn
+                      </a>
+                      <a
+                        href="mailto:swayam@example.com"
+                        className="flex items-center hover:text-white transition-colors"
+                      >
+                        <Mail className="w-4 h-4 mr-1" />
+                        Email
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4 mb-4">
+                  <img
+                    src="https://your-image-url.com/swayam.jpg"
+                    alt="Rishu"
+                    className="w-12 h-12 rounded-full border-2 border-purple-500"
+                  />
+                  <div>
+                    <p className="text-white font-medium">Swayam Gupta</p>
+                    <div className="flex space-x-3 mt-1 text-gray-300">
+                      <a
+                        href="https://github.com/swayamgupta"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center hover:text-white transition-colors"
+                      >
+                        <Github className="w-4 h-4 mr-1" />
+                        GitHub
+                      </a>
+                      <a
+                        href="https://linkedin.com/in/swayamgupta"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center hover:text-white transition-colors"
+                      >
+                        <Linkedin className="w-4 h-4 mr-1" />
+                        LinkedIn
+                      </a>
+                      <a
+                        href="mailto:swayam@example.com"
+                        className="flex items-center hover:text-white transition-colors"
+                      >
+                        <Mail className="w-4 h-4 mr-1" />
+                        Email
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Features</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Support</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">FAQ</a></li>
               </ul>
             </div>
           </div>
