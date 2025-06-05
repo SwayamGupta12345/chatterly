@@ -33,7 +33,7 @@ import { io } from "socket.io-client";
 
 export default function AskDoubtClient() {
   const searchParams = useSearchParams();
-  const convoId = searchParams.get("convoId") || "No convoId";
+  const convoId = searchParams.get("convoId") || "Temporary Chat";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -82,7 +82,7 @@ export default function AskDoubtClient() {
 
     fetchSession();
   }, []);
-
+  //fetchUserChats the chats for the user
   useEffect(() => {
     const fetchUserChats = async () => {
       try {
@@ -119,6 +119,8 @@ export default function AskDoubtClient() {
   //     window.removeEventListener("keydown", handleGlobalKeydown)
   //   }
   // }, [])
+
+  // Fetch conversation messages when convoId changes
   useEffect(() => {
     if (!convoId) return;
 
@@ -154,8 +156,7 @@ export default function AskDoubtClient() {
 
     fetchConversation();
   }, [convoId]);
-
-
+  // send message to ai and return the response
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -197,7 +198,7 @@ export default function AskDoubtClient() {
       const aiText = aiRes?.data?.response || "Unexpected response format.";
       const aiMessage = { role: "bot", text: aiText };
       setMessages((prev) => [...prev, aiMessage]);
-      console.log("ai res genet=rated")
+      console.log("ai res genet=rated");
       // 3. Save AI response via API
       const aiSave = await fetch("/api/Save-Message", {
         method: "POST",
@@ -236,7 +237,7 @@ export default function AskDoubtClient() {
 
     setLoading(false);
   };
-
+  // Handle Enter key to create a new chat
   const handleNewChat = async () => {
     const res = await fetch("/api/create-new-chat", { method: "POST" });
     const data = await res.json();
@@ -248,7 +249,7 @@ export default function AskDoubtClient() {
       alert(data.message || "Failed to create chat");
     }
   };
-
+  // Share chat with a user
   const handleSendShare = async () => {
     console.log("hit happened");
 
@@ -280,6 +281,8 @@ export default function AskDoubtClient() {
       alert(err.message || "Something went wrong");
     }
   };
+
+  //base handling of edit message
   const handleEditMessage = (id) => {
     const msg = messages.find((m) => m.id === id); // or m._id depending on your data shape
     if (!msg) return;
@@ -287,7 +290,6 @@ export default function AskDoubtClient() {
     setEditingIndex(id); // Now storing the actual ID
     setEditingText(msg.text);
   };
-
 
   // 1. Duplicated sendMessage logic, renamed to resendEditedMessage
   const resendEditedMessage = async (text) => {
@@ -371,7 +373,7 @@ export default function AskDoubtClient() {
     setLoading(false);
   };
 
-  // 2. Updated confirmEditMessage
+  // 2. confirmEditMessage
   const confirmEditMessage = async () => {
     if (!editingText.trim()) return;
 
@@ -409,13 +411,13 @@ export default function AskDoubtClient() {
     setEditingIndex(null);
     setEditingText("");
   };
-
+  // handling the deletion of a message
   const handleDeleteMessage = async (id) => {
     setMessages((prev) => prev.filter((msg) => msg.id !== id));
 
-    await fetch('/api/delete-ai-message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    await fetch("/api/delete-ai-message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         messageId: id,
         convoId: convoId,
@@ -423,7 +425,7 @@ export default function AskDoubtClient() {
     });
     console.log("deleted completely");
   };
-
+  // handling the logout of a user
   const handleLogout = async () => {
     try {
       await fetch("/api/logout", { method: "POST" });
@@ -438,12 +440,71 @@ export default function AskDoubtClient() {
   }, [messages]);
 
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
+          {/* Sidebar */}
+          <div
+            className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
+              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } lg:translate-x-0`}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    Chatterly
+                  </span>
+                </div>
+
+                {/* Close button pushed to the right */}
+                <div className="flex-1 flex justify-end lg:hidden">
+                  <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="p-1 hover:bg-gray-200 rounded-md"
+                  >
+                    <X className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+              </div>
+
+              <nav className="space-y-2">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <LayoutDashboard className="w-5 h-5" />
+                  <span>Dashboard</span>
+                </Link>
+                <Link
+                  href="/ask-doubt"
+                  className="flex items-center space-x-3 px-4 py-3 bg-purple-100 text-purple-700 rounded-xl"
+                >
+                  <Lightbulb className="w-5 h-5" />
+                  <span>Chatbot</span>
+                </Link>
+                <Link
+                  href="/chat"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <MessageCircleMore className="w-5 h-5" />
+                  <span>Chat with Friends</span>
+                </Link>
+              </nav>
+            </div>
+          </div>
+        </div>
+      }
+    >
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
         {/* Sidebar */}
         <div
-          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0`}
+          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
@@ -612,7 +673,6 @@ export default function AskDoubtClient() {
                   onChange={(e) => setShareMessage(e.target.value)}
                   placeholder="Message"
                   className="w-full border border-gray-300 rounded-lg p-2 text-sm mb-4"
-
                   rows={3}
                 />
 
@@ -636,7 +696,7 @@ export default function AskDoubtClient() {
                   <button
                     onClick={handleSendShare}
                     className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                  // disabled={!selectedUser}
+                    // disabled={!selectedUser}
                   >
                     Send
                   </button>
@@ -658,14 +718,16 @@ export default function AskDoubtClient() {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
-                      }`}
+                    className={`flex ${
+                      msg.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                   >
                     <div
-                      className={`px-4 py-3 rounded-xl shadow-md break-words ${msg.role === "user"
-                        ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
-                        : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
-                        }`}
+                      className={`px-4 py-3 rounded-xl shadow-md break-words ${
+                        msg.role === "user"
+                          ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
+                          : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
+                      }`}
                     >
                       <div className="text-xs font-semibold mb-1">
                         {msg.role === "user" ? "You" : "Bot"}
@@ -739,8 +801,8 @@ export default function AskDoubtClient() {
                                           {typeof children === "string"
                                             ? children
                                             : Array.isArray(children)
-                                              ? children.join("")
-                                              : ""}
+                                            ? children.join("")
+                                            : ""}
                                         </code>
                                       </pre>
                                       <div
@@ -772,7 +834,9 @@ export default function AskDoubtClient() {
                                           <FaCopy />
                                         </button>
                                         <button
-                                          onClick={() => sendToWhatsApp(children)}
+                                          onClick={() =>
+                                            sendToWhatsApp(children)
+                                          }
                                           title="Share via WhatsApp"
                                           className="action-button"
                                           style={{
@@ -816,7 +880,9 @@ export default function AskDoubtClient() {
                                   <tbody>{children}</tbody>
                                 ),
                                 tr: ({ children }) => (
-                                  <tr style={{ borderBottom: "1px solid #888" }}>
+                                  <tr
+                                    style={{ borderBottom: "1px solid #888" }}
+                                  >
                                     {children}
                                   </tr>
                                 ),
@@ -835,7 +901,8 @@ export default function AskDoubtClient() {
                             >
                               {msg.text}
                             </ReactMarkdown>
-                          )}</div>
+                          )}
+                        </div>
                         {msg.text && (
                           <div className="flex gap-4 justify-end items-center mt-2 text-xs text-gray-700">
                             <button
