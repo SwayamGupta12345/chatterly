@@ -129,6 +129,46 @@ export default function AskDoubtClient() {
     fetchUserChats();
   }, []);
 
+  useEffect(() => {
+    if (!userEmail) return;
+
+    if (!socket.current) {
+      socket.current = io("https://chatterly-backend-8dwx.onrender.com", {
+        transports: ["websocket"],
+      });
+    }
+
+    socket.current.emit("join-room", convoId);
+
+    socket.current.on("receive-user-message", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    // Listen for bot message
+    socket.current.on("receive-bot-message", (aiMessage) => {
+      setMessages((prev) => [...prev, aiMessage]);
+      setLoading(false);
+    });
+
+    // Listen for errors
+    socket.current.on("error-message", (msg) => {
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", text: msg || "⚠️ Error occurred." },
+      ]);
+      setLoading(false);
+    });
+
+    return () => {
+      socket.current.off("receive-user-message");
+      socket.current.off("receive-bot-message");
+      socket.current.off("error-message");
+      socket.current?.disconnect();
+      socket.current = null;
+    };
+  }, [convoId, userEmail]);
+
+
   // useEffect(() => {
   //   const handleGlobalKeydown = (e) => {
   //     const isAllowed = /^[a-zA-Z0-9 ]$/.test(e.key)
@@ -185,6 +225,96 @@ export default function AskDoubtClient() {
     fetchConversation();
   }, [convoId]);
   // send message to ai and return the response
+
+  // const sendMessage = async () => {
+  //   if (!input.trim()) return;
+
+  //   if (!userEmail) {
+  //     setMessages((prev) => [
+  //       ...prev,
+  //       { role: "bot", text: "❗ Please login to use chat." },
+  //     ]);
+  //     return;
+  //   }
+
+  //   const userMessage = { role: "user", text: input };
+  //   setMessages((prev) => [...prev, userMessage]);
+  //   setInput("");
+  //   setLoading(true);
+  //   setError("");
+
+  //   socket.current.emit("send-ai-message", {
+  //     roomId: convoId,               // room id
+  //     senderName: userEmail,
+  //     text: input,
+  //     role: "user",
+  //   });
+
+  //   try {
+  //     // 1. Save user message via API
+  //     const userRes = await fetch("/api/Save-Message", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         senderName: userEmail,
+  //         text: input,
+  //         role: "user",
+  //       }),
+  //     });
+  //     const { insertedId: userMessageId } = await userRes.json();
+
+  //     // 2. Get AI response
+  //     const aiRes = await axios.post("https://askdemia1.onrender.com/chat", {
+  //       user_id: userEmail,
+  //       message: input,
+  //     });
+
+  //     const aiText = aiRes?.data?.response || "Unexpected response format.";
+  //     const aiMessage = { role: "bot", text: aiText };
+  //     setMessages((prev) => [...prev, aiMessage]);
+  //     console.log("ai res generated");
+  //     setLoading(false);
+  //     // 3. Save AI response via API
+  //     const aiSave = await fetch("/api/Save-Message", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         senderName: "AI",
+  //         text: aiText,
+  //         role: "ai",
+  //       }),
+  //     });
+  //     console.log("Response saved");
+  //     const { insertedId: aiResponseId } = await aiSave.json();
+
+  //     // 4. Save message pair to conversation
+  //     await fetch("/api/add-message-pair", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         convoId,
+  //         userMessageId,
+  //         aiResponseId,
+  //       }),
+  //     });
+  //   } catch (err) {
+  //     console.error("Error sending message:", err);
+  //     setError("Something went wrong. Try again.");
+  //     setMessages((prev) => [
+  //       ...prev,
+  //       { role: "bot", text: "⚠️ Server error. Please try again later." },
+  //     ]);
+  //   }
+
+  //   setLoading(false);
+  // };
+
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -197,75 +327,19 @@ export default function AskDoubtClient() {
     }
 
     const userMessage = { role: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
     setError("");
 
-    try {
-      // 1. Save user message via API
-      const userRes = await fetch("/api/Save-Message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          senderName: userEmail,
-          text: input,
-          role: "user",
-        }),
-      });
-      const { insertedId: userMessageId } = await userRes.json();
-
-      // 2. Get AI response
-      const aiRes = await axios.post("https://askdemia1.onrender.com/chat", {
-        user_id: userEmail,
-        message: input,
-      });
-
-      const aiText = aiRes?.data?.response || "Unexpected response format.";
-      const aiMessage = { role: "bot", text: aiText };
-      setMessages((prev) => [...prev, aiMessage]);
-      console.log("ai res generated");
-      setLoading(false);
-      // 3. Save AI response via API
-      const aiSave = await fetch("/api/Save-Message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          senderName: "AI",
-          text: aiText,
-          role: "ai",
-        }),
-      });
-      console.log("Response saved");
-      const { insertedId: aiResponseId } = await aiSave.json();
-
-      // 4. Save message pair to conversation
-      await fetch("/api/add-message-pair", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          convoId,
-          userMessageId,
-          aiResponseId,
-        }),
-      });
-    } catch (err) {
-      console.error("Error sending message:", err);
-      setError("Something went wrong. Try again.");
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: "⚠️ Server error. Please try again later." },
-      ]);
-    }
-
-    setLoading(false);
+    // 🚀 Emit to socket server, let it handle everything
+    socket.current.emit("send-ai-message", {
+      roomId: convoId,
+      senderName: userEmail,
+      text: input,
+      role: "user",
+    });
   };
+
   // Handle Enter key to create a new chat
   const handleNewChat = async () => {
     const res = await fetch("/api/create-new-chat", { method: "POST" });
@@ -548,48 +622,6 @@ export default function AskDoubtClient() {
       setListening(true);
     }
   };
-  // const handleSpeak = () => {
-  //   if (!text) return;
-
-  //   if (speechSynthesis.speaking) {
-  //     if (speechSynthesis.paused) {
-  //       speechSynthesis.resume();
-  //       setIsPaused(false);
-  //       return;
-  //     } else {
-  //       speechSynthesis.pause();
-  //       setIsPaused(true);
-  //       return;
-  //     }
-  //   }
-
-  //   const utterance = new SpeechSynthesisUtterance(text);
-  //   utterance.lang = "en-US";
-  //   utterance.onstart = () => {
-  //     setIsSpeaking(true);
-  //     setIsPaused(false);
-  //   };
-  //   utterance.onend = () => {
-  //     setIsSpeaking(false);
-  //     setIsPaused(false);
-  //   };
-  //   utterance.onerror = () => {
-  //     setIsSpeaking(false);
-  //     setIsPaused(false);
-  //   };
-
-  //   utteranceRef.current = utterance;
-  //   speechSynthesis.speak(utterance);
-  // };
-  //speak ai message
-  // const speakText = (text) => {
-  //   if (!text) return;
-  //   const utterance = new SpeechSynthesisUtterance(text);
-  //   utterance.lang = "en-US";
-  //   utterance.rate = 1; // You can adjust speaking rate (0.5–2)
-  //   utterance.pitch = 1; // Default pitch
-  //   speechSynthesis.speak(utterance);
-  // };
   const speakText = (text) => {
     if (!text) return;
 
@@ -646,9 +678,8 @@ export default function AskDoubtClient() {
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
           {/* Sidebar */}
           <div
-            className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
-              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0`}
+            className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+              } lg:translate-x-0`}
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-8">
@@ -703,9 +734,8 @@ export default function AskDoubtClient() {
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
         {/* Sidebar */}
         <div
-          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0`}
+          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } lg:translate-x-0`}
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
@@ -771,11 +801,10 @@ export default function AskDoubtClient() {
                       <Link
                         href={`/ask-doubt?convoId=${chat.convoId}`}
                         onClick={() => setSelectedConvoId(chat.convoId)}
-                        className={`block text-sm px-4 py-2 rounded-lg transition-colors pr-8 ${
-                          selectedConvoId === chat.convoId
-                            ? "bg-purple-200 text-purple-800"
-                            : "hover:bg-gray-100 text-gray-700"
-                        }`}
+                        className={`block text-sm px-4 py-2 rounded-lg transition-colors pr-8 ${selectedConvoId === chat.convoId
+                          ? "bg-purple-200 text-purple-800"
+                          : "hover:bg-gray-100 text-gray-700"
+                          }`}
                       >
                         {chat.name || "Untitled Chat"}
                       </Link>
@@ -1000,16 +1029,14 @@ export default function AskDoubtClient() {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${
-                      msg.role === "user" ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
+                      }`}
                   >
                     <div
-                      className={`px-4 py-3 rounded-xl shadow-md break-words ${
-                        msg.role === "user"
-                          ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
-                          : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
-                      }`}
+                      className={`px-4 py-3 rounded-xl shadow-md break-words ${msg.role === "user"
+                        ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
+                        : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
+                        }`}
                     >
                       <div className="text-xs font-semibold mb-1">
                         {msg.role === "user" ? "You" : "Bot"}
@@ -1083,8 +1110,8 @@ export default function AskDoubtClient() {
                                           {typeof children === "string"
                                             ? children
                                             : Array.isArray(children)
-                                            ? children.join("")
-                                            : ""}
+                                              ? children.join("")
+                                              : ""}
                                         </code>
                                       </pre>
                                       <div
@@ -1187,11 +1214,10 @@ export default function AskDoubtClient() {
                         </div>
                         {msg.text && (
                           <div
-                            className={`flex gap-4 items-center mt-2 text-xs text-gray-700 ${
-                              msg.role === "user"
-                                ? "justify-end"
-                                : "justify-start"
-                            }`}
+                            className={`flex gap-4 items-center mt-2 text-xs text-gray-700 ${msg.role === "user"
+                              ? "justify-end"
+                              : "justify-start"
+                              }`}
                           >
                             {msg.role === "user" && (
                               <>
@@ -1228,8 +1254,8 @@ export default function AskDoubtClient() {
                                   isPaused
                                     ? "Resume speaking"
                                     : isSpeaking
-                                    ? "Pause speaking"
-                                    : "Play"
+                                      ? "Pause speaking"
+                                      : "Play"
                                 }
                                 className="flex items-center gap-1 text-green-600 hover:text-green-800 transition"
                               >
@@ -1246,8 +1272,8 @@ export default function AskDoubtClient() {
                                   {isPaused
                                     ? "Resume"
                                     : isSpeaking
-                                    ? "Pause"
-                                    : "Pause"}
+                                      ? "Pause"
+                                      : "Pause"}
                                 </span>
                                 {isSpeaking && (
                                   <button
@@ -1298,11 +1324,10 @@ export default function AskDoubtClient() {
                   />
                   <button
                     onClick={toggleListening}
-                    className={`p-2 rounded-xl border transition ${
-                      listening
-                        ? "bg-red-500 text-white"
-                        : "bg-white text-black"
-                    }`}
+                    className={`p-2 rounded-xl border transition ${listening
+                      ? "bg-red-500 text-white"
+                      : "bg-white text-black"
+                      }`}
                   >
                     {listening ? (
                       <MicOff className="w-5 h-5" />
