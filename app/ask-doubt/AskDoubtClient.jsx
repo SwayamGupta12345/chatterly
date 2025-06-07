@@ -667,7 +667,7 @@ export default function AskDoubtClient() {
   //   } else {
   //     recognitionRef.current.start();
   //     setListening(true);
-  //   }
+  //   } 
   // };
   const toggleListening = () => {
     if (!recognitionRef.current) return;
