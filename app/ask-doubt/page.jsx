@@ -436,7 +436,7 @@
 // }
 import { Suspense } from "react";
 import AskDoubtClient from "./AskDoubtClient";
-import { Lightbulb, LayoutDashboard, MessageCircleMore} from "lucide-react"
+import { Lightbulb, LayoutDashboard, MessageCircleMore, Sparkles} from "lucide-react"
 import Link from "next/link"
 
 export default function AskDoubtPage() {
@@ -466,10 +466,13 @@ export default function AskDoubtPage() {
               <MessageCircleMore className="w-5 h-5" />
               <span>Chat with Friends</span>
             </Link>
-            {/* <Link href="/profile" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
-              <User className="w-5 h-5" />
-              <span>Profile</span>
-            </Link> */}
+            <Link
+              href="https://v0.dev/"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              <Sparkles className="w-5 h-5" />
+              <span>Webapp Builder</span>
+            </Link>
           </nav>
         </div>
       }
