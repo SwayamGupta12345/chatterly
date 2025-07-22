@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Eye, EyeOff, BookOpen, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsEmailLoading(true)
