@@ -21,7 +21,7 @@ import {
   Trash2,
   Pin,
   Mail,
-  Sparkles ,
+  Sparkles,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -320,6 +320,18 @@ export default function AskDoubtPage() {
     socket.current.emit("send-message", message); // send to server
     // setMessages((prev) => [...prev, message]);
     setInput("");
+    // ✅ Move this chat to top immediately on send
+    setFriends((prevFriends) => {
+      const updated = prevFriends.map((f) => {
+        if (f.chatbox_id === chatboxId) {
+          return { ...f, lastModified: new Date().toISOString() };
+        }
+        return f;
+      });
+      return updated.sort(
+        (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
+      );
+    });
   };
 
   const handleEditMessage = (index) => {
@@ -404,9 +416,8 @@ export default function AskDoubtPage() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
       {/* Sidebar */}
       <div
-        className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
+        className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
@@ -445,7 +456,7 @@ export default function AskDoubtPage() {
               <Lightbulb className="w-5 h-5" />
               <span>Chat</span>
             </Link>
-            
+
             <Link
               href="/chat"
               className="flex items-center space-x-3 px-4 py-3 bg-purple-100 text-purple-700 rounded-xl transition-colors"
@@ -453,13 +464,13 @@ export default function AskDoubtPage() {
               <MessageCircleMore className="w-5 h-5" />
               <span>Chat with Friends</span>
             </Link>
-            <Link
+            {/* <Link
               href="https://v0.dev/"
               className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
             >
               <Sparkles className="w-5 h-5" />
               <span>Webapp Builder</span>
-            </Link>
+            </Link> */}
             <button
               onClick={handleNewChat}
               className="w-full text-left px-4 py-2 mb-2 bg-green-100 text-green-700 hover:bg-green-200 rounded-xl transition-colors"
@@ -477,15 +488,13 @@ export default function AskDoubtPage() {
                 <div key={frnd.chatbox_id} className="relative group">
                   <button
                     onClick={() => handleFriendSelect(frnd)}
-                    className={`w-full text-left px-4 py-2 rounded-xl transition-colors transform duration-300 ${
-                      selectedFriend?.chatbox_id === frnd.chatbox_id
+                    className={`w-full text-left px-4 py-2 rounded-xl transition-colors transform duration-300 ${selectedFriend?.chatbox_id === frnd.chatbox_id
                         ? "bg-purple-200 text-purple-800"
                         : "hover:bg-gray-100 text-gray-700"
-                    } ${
-                      updatedChatboxId === frnd.chatbox_id
+                      } ${updatedChatboxId === frnd.chatbox_id
                         ? "scale-[1.03] shadow-md"
                         : ""
-                    }`}
+                      }`}
                   >
                     <span className="block truncate max-w-full">
                       {frnd.nickname || frnd.email}
@@ -561,13 +570,13 @@ export default function AskDoubtPage() {
                   <Menu className="w-6 h-6" />
                 )}
               </button>
-              <Link
+              {/* <Link
                 href="/dashboard"
                 className="flex items-center text-purple-600 hover:text-purple-700 transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back to Dashboard
-              </Link>
+              </Link> */}
               <h1 className="text-2xl font-bold text-gray-800">
                 Chat with Friends
               </h1>
@@ -595,18 +604,16 @@ export default function AskDoubtPage() {
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`flex ${
-                    msg.senderEmail === userEmail
+                  className={`flex ${msg.senderEmail === userEmail
                       ? "justify-end"
                       : "justify-start"
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`px-4 py-3 rounded-xl shadow-md max-w-[100vw] md:max-w-md ${
-                      msg.senderEmail === userEmail
+                    className={`px-4 py-3 rounded-xl shadow-md max-w-[100vw] md:max-w-md ${msg.senderEmail === userEmail
                         ? "bg-purple-100 text-right rounded-br-none"
                         : "bg-blue-100 text-left rounded-bl-none self-start"
-                    }`}
+                      }`}
                   >
                     <div className="text-xs font-semibold text-gray-600 mb-1">
                       {msg.senderEmail === userEmail
@@ -694,8 +701,8 @@ export default function AskDoubtPage() {
                                       {typeof children === "string"
                                         ? children
                                         : Array.isArray(children)
-                                        ? children.join("")
-                                        : ""}
+                                          ? children.join("")
+                                          : ""}
                                     </code>
                                   </pre>
                                   <div
@@ -852,11 +859,10 @@ export default function AskDoubtPage() {
                 />
                 <button
                   onClick={sendMessage}
-                  className={`bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full transition ${
-                    !input.trim()
+                  className={`bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full transition ${!input.trim()
                       ? "opacity-50 cursor-not-allowed"
                       : "hover:opacity-90"
-                  }`}
+                    }`}
                 >
                   <Send className="w-4 h-4" />
                 </button>
