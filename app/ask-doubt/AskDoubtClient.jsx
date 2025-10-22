@@ -739,9 +739,8 @@ export default function AskDoubtClient() {
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
           {/* Sidebar */}
           <div
-            className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
-              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0`}
+            className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+              } lg:translate-x-0`}
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-8">
@@ -771,29 +770,30 @@ export default function AskDoubtClient() {
                   className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
                 >
                   <LayoutDashboard className="w-5 h-5" />
-                  <span className="text-sm">Dashboard</span>
+                  <span>Dashboard</span>
                 </Link>
                 <Link
                   href="/ask-doubt"
-                  className="flex items-center space-x-3 px-4 py-3 bg-purple-100 text-purple-700 rounded-xl"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl"
                 >
                   <Lightbulb className="w-5 h-5" />
-                  <span className="text-sm">Chatbot</span>
+                  <span>Chat</span>
                 </Link>
+
                 <Link
                   href="/chat"
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                  className="flex items-center space-x-3 px-4 py-3 bg-purple-100 text-purple-700 rounded-xl transition-colors"
                 >
                   <MessageCircleMore className="w-5 h-5" />
-                  <span className="text-sm">Chat with Friends</span>
+                  <span>Chat with Friends</span>
                 </Link>
-                <Link
-                  href="https://v0.dev/"
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                >
-                  <Sparkles className="w-5 h-5" />
-                  <span>Webapp Builder</span>
-                </Link>
+                {/* <Link
+              href="https://v0.dev/"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              <Sparkles className="w-5 h-5" />
+              <span>Webapp Builder</span>
+            </Link> */}
               </nav>
             </div>
           </div>
@@ -803,9 +803,8 @@ export default function AskDoubtClient() {
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
         {/* Sidebar */}
         <div
-          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0`}
+          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } lg:translate-x-0`}
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
@@ -851,17 +850,17 @@ export default function AskDoubtClient() {
                 <MessageCircleMore className="w-5 h-5" />
                 <span className="text-sm">Chat with Friends</span>
               </Link>
-              <Link
+              {/* <Link
                 href="https://v0.dev/"
                 className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
               >
                 <Sparkles className="w-5 h-5" />
                 <span>Webapp Builder</span>
-              </Link>
+              </Link> */}
               <hr className="border-t-2 border-gray-400 rounded-full my-4 shadow-sm" />
               <button
                 onClick={handleNewChat}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors w-full"
+                className="flex items-center space-x-3 px-4 py-3 bg-green-100 text-green-700 hover:bg-gray-100 rounded-xl transition-colors w-full"
               >
                 <MessageSquareDiff className="w-5 h-5" />
                 <span className="text-sm">New Chat</span>
@@ -978,13 +977,14 @@ export default function AskDoubtClient() {
                     <Menu className="w-6 h-6" />
                   )}
                 </button>
-                <Link
+                {/* <Link
                   href="/dashboard"
                   className="flex items-center text-purple-600 hover:text-purple-700 transition-colors"
                 >
                   <ArrowLeft className="w-5 h-5 mr-2" />
                   Back to Dashboard
-                </Link>
+                </Link> */}
+                <Lightbulb className="w-5 h-5" />
                 <h1 className="text-2xl font-bold text-gray-800">Chatbot</h1>
               </div>
 
@@ -1107,16 +1107,14 @@ export default function AskDoubtClient() {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${
-                      msg.role === "user" ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
+                      }`}
                   >
                     <div
-                      className={`px-4 py-3 rounded-xl shadow-md break-words ${
-                        msg.role === "user"
-                          ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
-                          : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
-                      }`}
+                      className={`px-4 py-3 rounded-xl shadow-md break-words ${msg.role === "user"
+                        ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
+                        : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
+                        }`}
                     >
                       <div className="text-xs font-semibold mb-1">
                         {msg.role === "user" ? "You" : "Bot"}
@@ -1190,8 +1188,8 @@ export default function AskDoubtClient() {
                                           {typeof children === "string"
                                             ? children
                                             : Array.isArray(children)
-                                            ? children.join("")
-                                            : ""}
+                                              ? children.join("")
+                                              : ""}
                                         </code>
                                       </pre>
                                       <div
@@ -1294,11 +1292,10 @@ export default function AskDoubtClient() {
                         </div>
                         {msg.text && (
                           <div
-                            className={`flex gap-4 items-center mt-2 text-xs text-gray-700 ${
-                              msg.role === "user"
-                                ? "justify-end"
-                                : "justify-start"
-                            }`}
+                            className={`flex gap-4 items-center mt-2 text-xs text-gray-700 ${msg.role === "user"
+                              ? "justify-end"
+                              : "justify-start"
+                              }`}
                           >
                             {msg.role === "user" && (
                               <>
@@ -1335,8 +1332,8 @@ export default function AskDoubtClient() {
                                   isPaused
                                     ? "Resume speaking"
                                     : isSpeaking
-                                    ? "Pause speaking"
-                                    : "Play"
+                                      ? "Pause speaking"
+                                      : "Play"
                                 }
                                 className="flex items-center gap-1 text-green-600 hover:text-green-800 transition"
                               >
@@ -1353,8 +1350,8 @@ export default function AskDoubtClient() {
                                   {isPaused
                                     ? "Resume"
                                     : isSpeaking
-                                    ? "Pause"
-                                    : "Play"}
+                                      ? "Pause"
+                                      : "Play"}
                                 </span>
                                 {isSpeaking && (
                                   <button
@@ -1405,11 +1402,10 @@ export default function AskDoubtClient() {
                   />
                   <button
                     onClick={toggleListening}
-                    className={`p-2 rounded-xl border transition ${
-                      listening
-                        ? "bg-red-500 text-white"
-                        : "bg-white text-black"
-                    }`}
+                    className={`p-2 rounded-xl border transition ${listening
+                      ? "bg-red-500 text-white"
+                      : "bg-white text-black"
+                      }`}
                   >
                     {listening ? (
                       <MicOff className="w-5 h-5" />
