@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 export async function middleware(request) {
   const jwtToken = request.cookies.get("auth_token")?.value;
   // const nextAuthToken = request.cookies.get("next-auth.session-token")?.value;
-  const nextAuthToken = request.cookies.get("next-auth.session-token")?.value || request.cookies/get("__SecureNextAuth.session-token")?.value;
+  const nextAuthToken = request.cookies.get("next-auth.session-token")?.value || request.cookies.get("__Secure-next-auth.session-token")?.value;
 
   if(!process.env.JWT_SECRET) {
     console.error("JWT_SECRET is not defined in environment variables.");
@@ -30,7 +30,7 @@ export async function middleware(request) {
   // 2️⃣ If you're logged in with NextAuth (Google etc.)
   if (nextAuthToken) {
     // Token exists, trust NextAuth
-    return NextResponse.next();
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   // 3️⃣ Otherwise not authenticated
