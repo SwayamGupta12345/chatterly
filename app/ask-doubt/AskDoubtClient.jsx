@@ -1,4 +1,5 @@
 "use client";
+import FallbackLayout from "./FallbackLayout";
 import { Inter } from "next/font/google";
 import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -169,27 +170,6 @@ export default function AskDoubtClient() {
     };
   }, [convoId, userEmail]);
 
-
-  // useEffect(() => {
-  //   const handleGlobalKeydown = (e) => {
-  //     const isAllowed = /^[a-zA-Z0-9 ]$/.test(e.key)
-  //     if (isAllowed && document.activeElement !== inputRef.current) {
-  //       e.preventDefault()
-  //       inputRef.current?.focus()
-
-  //       // Append the key to the input manually
-  //       setInput((prev) => prev + e.key)
-  //     }
-  //   }
-
-  //   window.addEventListen]er("keydown", handleGlobalKeydown)
-
-  //   return () => {
-  //     window.removeEventListener("keydown", handleGlobalKeydown)
-  //   }
-  // }, [])
-
-  // Fetch conversation messages when convoId changes
   useEffect(() => {
     if (!convoId) return;
 
@@ -225,8 +205,8 @@ export default function AskDoubtClient() {
 
     fetchConversation();
   }, [convoId]);
-  // send message to ai and return the response
 
+  // // Send message to socket server
   // const sendMessage = async () => {
   //   if (!input.trim()) return;
 
@@ -239,83 +219,18 @@ export default function AskDoubtClient() {
   //   }
 
   //   const userMessage = { role: "user", text: input };
-  //   setMessages((prev) => [...prev, userMessage]);
   //   setInput("");
   //   setLoading(true);
   //   setError("");
 
+  //   // 🚀 Emit to socket server, let it handle everything
   //   socket.current.emit("send-ai-message", {
-  //     roomId: convoId,               // room id
+  //     roomId: convoId,
   //     senderName: userEmail,
   //     text: input,
   //     role: "user",
   //   });
-
-  //   try {
-  //     // 1. Save user message via API
-  //     const userRes = await fetch("/api/Save-Message", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         senderName: userEmail,
-  //         text: input,
-  //         role: "user",
-  //       }),
-  //     });
-  //     const { insertedId: userMessageId } = await userRes.json();
-
-  //     // 2. Get AI response
-  //     const aiRes = await axios.post("https://askdemia1.onrender.com/chat", {
-  //       user_id: userEmail,
-  //       message: input,
-  //     });
-
-  //     const aiText = aiRes?.data?.response || "Unexpected response format.";
-  //     const aiMessage = { role: "bot", text: aiText };
-  //     setMessages((prev) => [...prev, aiMessage]);
-  //     console.log("ai res generated");
-  //     setLoading(false);
-  //     // 3. Save AI response via API
-  //     const aiSave = await fetch("/api/Save-Message", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         senderName: "AI",
-  //         text: aiText,
-  //         role: "ai",
-  //       }),
-  //     });
-  //     console.log("Response saved");
-  //     const { insertedId: aiResponseId } = await aiSave.json();
-
-  //     // 4. Save message pair to conversation
-  //     await fetch("/api/add-message-pair", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         convoId,
-  //         userMessageId,
-  //         aiResponseId,
-  //       }),
-  //     });
-  //   } catch (err) {
-  //     console.error("Error sending message:", err);
-  //     setError("Something went wrong. Try again.");
-  //     setMessages((prev) => [
-  //       ...prev,
-  //       { role: "bot", text: "⚠️ Server error. Please try again later." },
-  //     ]);
-  //   }
-
-  //   setLoading(false);
   // };
-
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -327,18 +242,72 @@ export default function AskDoubtClient() {
       return;
     }
 
+    // 1️⃣ Push user message to UI
     const userMessage = { role: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
     setError("");
 
-    // 🚀 Emit to socket server, let it handle everything
-    socket.current.emit("send-ai-message", {
-      roomId: convoId,
-      senderName: userEmail,
-      text: input,
-      role: "user",
-    });
+    try {
+      // 2️⃣ Save user message in DB
+      const userRes = await fetch("/api/Save-Message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderName: userEmail,
+          text: input,
+          role: "user",
+        }),
+      });
+
+      const { insertedId: userMessageId } = await userRes.json();
+
+      // 3️⃣ Get AI response from your backend
+      const aiRes = await axios.post("https://askdemia1.onrender.com/chat", {
+        user_id: userEmail,
+        message: input,
+      });
+
+      const aiText = aiRes?.data?.response || "Unexpected response format.";
+      const aiMessage = { role: "bot", text: aiText };
+
+      // 4️⃣ Show AI response in chat
+      setMessages((prev) => [...prev, aiMessage]);
+
+      // 5️⃣ Save AI response in DB
+      const aiSave = await fetch("/api/Save-Message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderName: "AI",
+          text: aiText,
+          role: "ai",
+        }),
+      });
+
+      const { insertedId: aiResponseId } = await aiSave.json();
+
+      // 6️⃣ Link both messages in conversation
+      await fetch("/api/add-message-pair", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          convoId,
+          userMessageId,
+          aiResponseId,
+        }),
+      });
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setError("Something went wrong. Try again.");
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", text: "⚠️ Server error. Please try again later." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Handle Enter key to create a new chat
@@ -584,32 +553,6 @@ export default function AskDoubtClient() {
     window.location.reload();
   };
 
-  // handling the search for users to share the chat with voice
-  // useEffect(() => {
-  //   // Check if browser supports SpeechRecognition
-  //   const SpeechRecognition =
-  //     window.SpeechRecognition || window.webkitSpeechRecognition;
-  //   if (!SpeechRecognition) {
-  //     console.warn("Speech Recognition not supported");
-  //     return;
-  //   }
-
-  //   const recognition = new SpeechRecognition();
-  //   recognition.lang = "en-US";
-  //   recognition.interimResults = false;
-  //   recognition.continuous = false;
-
-  //   recognition.onresult = (event) => {
-  //     const transcript = event.results[0][0].transcript;
-  //     setInput((prev) => prev + " " + transcript);
-  //   };
-
-  //   recognition.onend = () => {
-  //     setListening(false);
-  //   };
-
-  //   recognitionRef.current = recognition;
-  // }, []);
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -657,19 +600,6 @@ export default function AskDoubtClient() {
     recognitionRef.current = recognition;
   }, []);
 
-
-  // Toggle listening state for voice input
-  // const toggleListening = () => {
-  //   if (!recognitionRef.current) return;
-
-  //   if (listening) {
-  //     recognitionRef.current.stop();
-  //     setListening(false);
-  //   } else {
-  //     recognitionRef.current.start();
-  //     setListening(true);
-  //   } 
-  // };
   const toggleListening = () => {
     if (!recognitionRef.current) return;
 
@@ -736,75 +666,81 @@ export default function AskDoubtClient() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
-          {/* Sidebar */}
-          <div
-            className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-              } lg:translate-x-0`}
-          >
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    Chatterly
-                  </span>
-                </div>
+        // <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
+        //   {/* Sidebar */}
+        //   <div
+        //     className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
+        //       isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        //     } lg:translate-x-0`}
+        //   >
+        //     <div className="p-6">
+        //       <div className="flex items-center justify-between mb-8">
+        //         <div className="flex items-center space-x-2">
+        //           <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+        //             <BookOpen className="w-5 h-5 text-white" />
+        //           </div>
+        //           <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+        //             Chatterly
+        //           </span>
+        //         </div>
 
-                {/* Close button pushed to the right */}
-                <div className="flex-1 flex justify-end lg:hidden">
-                  <button
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="p-1 hover:bg-gray-200 rounded-md"
-                  >
-                    <X className="w-5 h-5 text-gray-600" />
-                  </button>
-                </div>
-              </div>
+        //         {/* Close button pushed to the right */}
+        //         <div className="flex-1 flex justify-end lg:hidden">
+        //           <button
+        //             onClick={() => setIsSidebarOpen(false)}
+        //             className="p-1 hover:bg-gray-200 rounded-md"
+        //           >
+        //             <X className="w-5 h-5 text-gray-600" />
+        //           </button>
+        //         </div>
+        //       </div>
 
-              <nav className="space-y-2">
-                <Link
-                  href="/dashboard"
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                >
-                  <LayoutDashboard className="w-5 h-5" />
-                  <span>Dashboard</span>
-                </Link>
-                <Link
-                  href="/ask-doubt"
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl"
-                >
-                  <Lightbulb className="w-5 h-5" />
-                  <span>Chat</span>
-                </Link>
+        //       <nav className="space-y-2">
+        //         <Link
+        //           href="/dashboard"
+        //           className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+        //         >
+        //           <LayoutDashboard className="w-5 h-5" />
+        //           <span>Dashboard</span>
+        //         </Link>
+        //         <Link
+        //           href="/ask-doubt"
+        //           className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl"
+        //         >
+        //           <Lightbulb className="w-5 h-5" />
+        //           <span>Chat</span>
+        //         </Link>
 
-                <Link
-                  href="/chat"
-                  className="flex items-center space-x-3 px-4 py-3 bg-purple-100 text-purple-700 rounded-xl transition-colors"
-                >
-                  <MessageCircleMore className="w-5 h-5" />
-                  <span>Chat with Friends</span>
-                </Link>
-                {/* <Link
-              href="https://v0.dev/"
-              className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-            >
-              <Sparkles className="w-5 h-5" />
-              <span>Webapp Builder</span>
-            </Link> */}
-              </nav>
-            </div>
-          </div>
-        </div>
+        //         <Link
+        //           href="/chat"
+        //           className="flex items-center space-x-3 px-4 py-3 bg-purple-100 text-purple-700 rounded-xl transition-colors"
+        //         >
+        //           <MessageCircleMore className="w-5 h-5" />
+        //           <span>Chat with Friends</span>
+        //         </Link>
+        //         {/* <Link
+        //       href="https://v0.dev/"
+        //       className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+        //     >
+        //       <Sparkles className="w-5 h-5" />
+        //       <span>Webapp Builder</span>
+        //     </Link> */}
+        //       </nav>
+        //     </div>
+        //   </div>
+        // </div>
+        <FallbackLayout
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
       }
     >
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
         {/* Sidebar */}
         <div
-          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0`}
+          className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
@@ -878,10 +814,11 @@ export default function AskDoubtClient() {
                       <Link
                         href={`/ask-doubt?convoId=${chat.convoId}`}
                         onClick={() => setSelectedConvoId(chat.convoId)}
-                        className={`block text-sm px-4 py-2 rounded-lg transition-colors pr-8  ${selectedConvoId === chat.convoId
-                          ? "bg-purple-200 text-purple-800"
-                          : "hover:bg-gray-100 text-gray-700"
-                          }`}
+                        className={`block text-sm px-4 py-2 rounded-lg transition-colors pr-8  ${
+                          selectedConvoId === chat.convoId
+                            ? "bg-purple-200 text-purple-800"
+                            : "hover:bg-gray-100 text-gray-700"
+                        }`}
                       >
                         {chat.name || "Untitled Chat"}
                       </Link>
@@ -977,13 +914,6 @@ export default function AskDoubtClient() {
                     <Menu className="w-6 h-6" />
                   )}
                 </button>
-                {/* <Link
-                  href="/dashboard"
-                  className="flex items-center text-purple-600 hover:text-purple-700 transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back to Dashboard
-                </Link> */}
                 <Lightbulb className="w-5 h-5" />
                 <h1 className="text-2xl font-bold text-gray-800">Chatbot</h1>
               </div>
@@ -1000,10 +930,10 @@ export default function AskDoubtClient() {
                   </button>
                 )}
 
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
+                {/* <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
                   <Bell className="w-6 h-6 text-gray-600" />
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-                </button>
+                </button> */}
                 <Link href="/profile">
                   <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center cursor-pointer">
                     <User className="w-5 h-5 text-white" />
@@ -1107,14 +1037,16 @@ export default function AskDoubtClient() {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
-                      }`}
+                    className={`flex ${
+                      msg.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                   >
                     <div
-                      className={`px-4 py-3 rounded-xl shadow-md break-words ${msg.role === "user"
-                        ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
-                        : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
-                        }`}
+                      className={`px-4 py-3 rounded-xl shadow-md break-words ${
+                        msg.role === "user"
+                          ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
+                          : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
+                      }`}
                     >
                       <div className="text-xs font-semibold mb-1">
                         {msg.role === "user" ? "You" : "Bot"}
@@ -1188,8 +1120,8 @@ export default function AskDoubtClient() {
                                           {typeof children === "string"
                                             ? children
                                             : Array.isArray(children)
-                                              ? children.join("")
-                                              : ""}
+                                            ? children.join("")
+                                            : ""}
                                         </code>
                                       </pre>
                                       <div
@@ -1292,10 +1224,11 @@ export default function AskDoubtClient() {
                         </div>
                         {msg.text && (
                           <div
-                            className={`flex gap-4 items-center mt-2 text-xs text-gray-700 ${msg.role === "user"
-                              ? "justify-end"
-                              : "justify-start"
-                              }`}
+                            className={`flex gap-4 items-center mt-2 text-xs text-gray-700 ${
+                              msg.role === "user"
+                                ? "justify-end"
+                                : "justify-start"
+                            }`}
                           >
                             {msg.role === "user" && (
                               <>
@@ -1332,8 +1265,8 @@ export default function AskDoubtClient() {
                                   isPaused
                                     ? "Resume speaking"
                                     : isSpeaking
-                                      ? "Pause speaking"
-                                      : "Play"
+                                    ? "Pause speaking"
+                                    : "Play"
                                 }
                                 className="flex items-center gap-1 text-green-600 hover:text-green-800 transition"
                               >
@@ -1350,8 +1283,8 @@ export default function AskDoubtClient() {
                                   {isPaused
                                     ? "Resume"
                                     : isSpeaking
-                                      ? "Pause"
-                                      : "Play"}
+                                    ? "Pause"
+                                    : "Play"}
                                 </span>
                                 {isSpeaking && (
                                   <button
@@ -1402,10 +1335,11 @@ export default function AskDoubtClient() {
                   />
                   <button
                     onClick={toggleListening}
-                    className={`p-2 rounded-xl border transition ${listening
-                      ? "bg-red-500 text-white"
-                      : "bg-white text-black"
-                      }`}
+                    className={`p-2 rounded-xl border transition ${
+                      listening
+                        ? "bg-red-500 text-white"
+                        : "bg-white text-black"
+                    }`}
                   >
                     {listening ? (
                       <MicOff className="w-5 h-5" />

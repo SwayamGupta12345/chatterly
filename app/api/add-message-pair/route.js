@@ -3,7 +3,7 @@
 // import { NextResponse } from "next/server";
 // import { ObjectId } from "mongodb";
 // import { connectToDatabase } from "@/lib/mongodb"; // Adjust this path as needed
- 
+
 // export async function POST(req) {
 //   try {
 //     const { convoId, userMessageId, aiResponseId } = await req.json();
@@ -200,6 +200,7 @@ export async function POST(req) {
 
     // Step 3: If it's the first message pair, generate a title
     if (conversation?.messages?.length === 1) {
+      console.log("First message pair added, generating chat title...");
       const messagesCollection = db.collection("messages");
 
       const userMessage = await messagesCollection.findOne({
@@ -209,9 +210,10 @@ export async function POST(req) {
         _id: new ObjectId(aiResponseId),
       });
 
-      const summaryInput = `Please Generate a title of max 3 words only and return it to me in json format like title:"<title>". I repeat: minimum 2 words, maximum 3. Based on: ${
-        userMessage?.text || ""
-      } ${aiResponse?.text || ""}`.trim();
+      const summaryInput =
+        `Please Generate a title of max 3 words only and return it to me in json format like title:"<title>" D not generate or return anything else i dont need any resposne only 3 words nothing else. I repeat: minimum 2 words, maximum 3. Based on: ${
+          userMessage?.text || ""
+        } ${aiResponse?.text || ""}`.trim();
 
       let renameRes;
 
@@ -245,7 +247,6 @@ export async function POST(req) {
             throw err;
           }
         }
-
         const raw = renameRes.data?.response;
         console.log("Rename response:", raw);
 
@@ -262,6 +263,7 @@ export async function POST(req) {
         }
 
         if (title) {
+          console.log("Generated title:", title);
           await db.collection("chats").updateOne(
             { convoId: new ObjectId(convoId) },
             {
