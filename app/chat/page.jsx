@@ -39,6 +39,9 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function AskDoubtPage() {
   const menuRef = useRef(null);
   const menuRefs = useRef({});
+  const deleteModalRef = useRef(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -141,6 +144,28 @@ export default function AskDoubtPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menuOpenId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showDeleteConfirm &&
+        deleteModalRef.current &&
+        !deleteModalRef.current.contains(event.target)
+      ) {
+        setShowDeleteConfirm(false);
+        setChatToDelete(null);
+      }
+    };
+
+    if (showDeleteConfirm) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showDeleteConfirm]);
+
 
   // useEffect(() => {
   //   const handleGlobalKeydown = (e) => {
@@ -267,9 +292,6 @@ export default function AskDoubtPage() {
   // ✅ Delete a chat and remove it from friend list safely
   const handleDeleteChatName = async (friend) => {
     try {
-      const confirmDelete = confirm(`Are you sure you want to delete the chat with "${friend.nickname || friend.email}"?`);
-      if (!confirmDelete) return;
-
       const userEmail = localStorage.getItem("email");
       if (!userEmail || !friend.chatbox_id) {
         alert("Invalid user or chatbox data.");
@@ -732,7 +754,7 @@ export default function AskDoubtPage() {
                           setEditingFriendId(null);
                         }
                       }}
-                      className={`w-full bg-white text-gray-900 border border-purple-300 focus:ring-2 focus:ring-purple-500 rounded-lg px-3 py-2 text-sm outline-none transition-all duration-200`}
+                      className={`max-w-[73%] bg-white text-gray-900 border border-purple-10 focus:ring-2 focus:ring-purple-300 rounded-lg px-3 py-2 text-sm outline-none transition-all duration-200`}
                       autoFocus
                     />
                   ) : (
@@ -747,35 +769,38 @@ export default function AskDoubtPage() {
                         : "hover:bg-gray-100 text-gray-700"
                         } ${updatedChatboxId === frnd.chatbox_id ? "scale-[1.03] shadow-md" : ""}`}
                     >
-                      <span className="block truncate max-w-full flex items-center gap-1">
+                      <span className="block truncate max-w-[75%] flex items-center gap-1">
                         <span>{frnd.nickname || frnd.email}</span>
-                        {frnd.pinned && (
-                          <span
-                            role="img"
-                            aria-label="Pinned Chat"
-                            className="text-purple-600 text-xs"
-                            title="Pinned Chat"
-                          >
-                            📌
-                          </span>
-                        )}
                       </span>
                     </button>
                   )}
-                  {/* 3-dot menu trigger */}
-                  <button
-                    ref={(el) => (menuRefs.current[frnd.chatbox_id] = el)}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setMenuOpenId((prev) =>
-                        prev === frnd.chatbox_id ? null : frnd.chatbox_id
-                      );
-                    }}
-                    className={`absolute top-[25%] right-2 p-1 rounded transition-colors ${menuOpenId === frnd.chatbox_id ? "bg-gray-200" : "hover:bg-gray-100"
-                      }`}
-                  >
-                    <EllipsisVertical size={16} />
-                  </button>
+                  <div className="absolute top-[18%] right-2 flex items-center gap-1">
+                    {/* 📌 Pin icon before three dots */}
+                    {frnd.pinned && (
+                      <span
+                        role="img"
+                        aria-label="Pinned Chat"
+                        title="Pinned Chat"
+                        className="text-purple-600 text-sm translate-y-[1px]"
+                      >
+                        📌
+                      </span>
+                    )}
+                    {/* 3-dot menu trigger */}
+                    <button
+                      ref={(el) => (menuRefs.current[frnd.chatbox_id] = el)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setMenuOpenId((prev) =>
+                          prev === frnd.chatbox_id ? null : frnd.chatbox_id
+                        );
+                      }}
+                      className={`p-1 rounded transition-colors ${menuOpenId === frnd.chatbox_id ? "bg-gray-200" : "hover:bg-gray-100"
+                        }`}
+                    >
+                      <EllipsisVertical size={16} />
+                    </button>
+                  </div>
 
                   {/* Dropdown menu */}
                   <AnimatePresence>
@@ -801,19 +826,38 @@ export default function AskDoubtPage() {
                           <Edit size={14} /> Edit Name
                         </button>
 
-                        <button
+                        {/* <button
                           onClick={() => handleDeleteChatName(frnd)}
+                          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left text-red-600"
+                        >
+                          <Trash2 size={14} /> Delete Chat
+                        </button> */}
+                        <button
+                          onClick={() => {
+                            setChatToDelete(frnd);
+                            setShowDeleteConfirm(true);
+                            setMenuOpenId(null);
+                          }}
                           className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left text-red-600"
                         >
                           <Trash2 size={14} /> Delete Chat
                         </button>
 
-                        <button
-                          onClick={() => handlePinChatName(frnd)}
-                          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left"
-                        >
-                          <Pin size={14} /> Pin to Top
-                        </button>
+                        {frnd.pinned ? (
+                          <button
+                            onClick={() => handlePinChatName(frnd)}
+                            className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left text-purple-700"
+                          >
+                            <Pin size={14} /> Unpin Chat
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handlePinChatName(frnd)}
+                            className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left text-purple-700"
+                          >
+                            <Pin size={14} /> Pin Chat
+                          </button>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -1152,6 +1196,63 @@ export default function AskDoubtPage() {
           </div>
         </main>
       </div>
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            key="deleteConfirm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50"
+          >
+            <motion.div
+              ref={deleteModalRef} // ✅ Add this line
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-sm p-6 text-center"
+            >
+              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                Delete Chat?
+              </h2>
+              <p className="text-gray-500 text-sm mb-6">
+                This will permanently delete the chat with{" "}
+                <span className="font-medium text-gray-700">
+                  {chatToDelete?.nickname || chatToDelete?.email}
+                </span>
+                . This action cannot be undone.
+              </p>
+
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setChatToDelete(null);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={async () => {
+                    if (chatToDelete) {
+                      await handleDeleteChatName(chatToDelete);
+                    }
+                    setShowDeleteConfirm(false);
+                    setChatToDelete(null);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {isAddFriendModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-2xl shadow-xl w-80">
