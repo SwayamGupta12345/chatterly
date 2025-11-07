@@ -484,7 +484,7 @@ export default function AskDoubtPage() {
         const newFriend = {
           chatbox_id: data.chatbox._id,
           email: data.friend.email,
-          nickname: data.friendName,
+          nickname: data.friend.nickname || friendName,
           lastModified: new Date().toISOString(),
         };
 
