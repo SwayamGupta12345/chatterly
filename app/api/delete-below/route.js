@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 export async function POST(req) {
   try {
     const { convoId, index } = await req.json();
-
+ 
     if (!convoId || index === undefined || !ObjectId.isValid(convoId)) {
       return NextResponse.json(
         { success: false, message: "Invalid convoId or index" },
