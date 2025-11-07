@@ -8,7 +8,7 @@ import {
   Lightbulb,
   Menu,
   X,
-  User, 
+  User,
   LogOut,
   ArrowLeft,
   Send,
@@ -54,12 +54,15 @@ export default function AskDoubtClient() {
   const searchParams = useSearchParams();
   const convoId = searchParams.get("convoId") || "Temporary Chat";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [user_ai_chats, setUser_ai_chats] = useState([]);
+  const [chatToDelete, setChatToDelete] = useState(null);
+
   const [editingChatId, setEditingChatId] = useState(null);
   const [newChatName, setNewChatName] = useState("");
 
@@ -332,19 +335,56 @@ export default function AskDoubtClient() {
   //     role: "user",
   //   });
   // };
-  
-  // Handle Enter key to create a new chat
-  const handleNewChat = async () => {
-    const res = await fetch("/api/create-new-chat", { method: "POST" });
-    const data = await res.json();
 
-    if (res.ok) {
-      // redirect to ask-doubt with convoId as query param
-      router.push(`/ask-doubt?convoId=${data.convoId}`);
-    } else {
-      alert(data.message || "Failed to create chat");
+  // Handle Enter key to create a new chat
+  //   const handleNewChat = async () => {
+  //   try {
+  //     const res = await fetch("/api/create-new-chat", { method: "POST" });
+  //     const data = await res.json();
+
+  //     if (res.ok) {
+  //       // Add the new chat to the existing chats
+  //       setUser_ai_chats((prevChats) => [data, ...prevChats]); // prepend to show newest first
+
+  //       // Optionally, if you want to scroll to the new chat
+  //       // document.getElementById(`chat-${data._id}`)?.scrollIntoView({ behavior: "smooth" });
+  //     } else {
+  //       alert(data.message || "Failed to create chat");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Something went wrong while creating chat.");
+  //   }
+  // };
+  const handleNewChat = async () => {
+    try {
+      const res = await fetch("/api/create-new-chat", { method: "POST" });
+      const data = await res.json();
+
+      if (res.ok) {
+        setUser_ai_chats((prevChats) => {
+          // Determine where to insert based on priority
+          if (data.priority === "high") {
+            // Insert after existing pinned chats
+            const pinned = prevChats.filter((chat) => chat.priority === "high");
+            const normal = prevChats.filter((chat) => chat.priority !== "high");
+            return [...pinned, data, ...normal];
+          } else {
+            // Insert at top of normal chats (after pinned)
+            const pinned = prevChats.filter((chat) => chat.priority === "high");
+            const normal = prevChats.filter((chat) => chat.priority !== "high");
+            return [...pinned, data, ...normal];
+          }
+        });
+      } else {
+        alert(data.message || "Failed to create chat");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while creating chat.");
     }
   };
+
   const handleSendShare = async (method) => {
     if (!selectedUser) return alert("Select a user to share with.");
     if (!shareMessage.trim()) return alert("Please enter a message to share.");
@@ -535,8 +575,7 @@ export default function AskDoubtClient() {
     });
     console.log("deleted completely");
   };
-  //editing the name of a chat
-  // ✅ Inline chat rename (no prompt, no reload)
+  //Inline chat rename (no prompt, no reload)
   const handleEditAiChatName = async (chat) => {
     const trimmed = newChatName?.trim();
     if (!trimmed) {
@@ -556,36 +595,27 @@ export default function AskDoubtClient() {
     );
     setEditingChatId(null);
   };
-
-  // const handleEditAiChatName = async (chat) => {
-  //   const newName = prompt("Enter new chat name", chat.name);
-  //   if (!newName?.trim()) return;
-
-  //   await fetch("/api/edit-ai-chat-name", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ chatId: chat._id, newName }),
-  //   });
-
-  //   window.location.reload();
-  // };
   // handling the deletion of an AI chat
   const handleDeleteAiChat = async (chat) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this chat and all related data?"
-      )
-    )
-      return;
+    // Optimistic UI update
+    setUser_ai_chats((prev) => prev.filter((c) => c._id !== chat._id));
+    setMenuOpenId(null);
 
-    await fetch("/api/delete-ai-chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chatId: chat._id, convoId: chat.convoId }),
-    });
+    try {
+      const res = await fetch("/api/delete-ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatId: chat._id, convoId: chat.convoId }),
+      });
 
-    window.location.reload();
+      if (!res.ok) throw new Error("Failed to delete chat");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Error deleting chat. Reverting changes.");
+      setUser_ai_chats((prev) => [...prev, chat]);
+    }
   };
+
   // handling the pinning and unpining of an AI chat
   const handleTogglePinAiChat = async (chat, pin) => {
     await fetch("/api/pin-ai-chat", {
@@ -707,6 +737,25 @@ export default function AskDoubtClient() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target) &&
+        !event.target.closest("button") // ignore clicks on the toggle button
+      ) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    if (isSidebarOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSidebarOpen]);
   return (
     <Suspense
       fallback={
@@ -782,11 +831,12 @@ export default function AskDoubtClient() {
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
         {/* Sidebar */}
         <div
+          ref={sidebarRef}
           className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0`}
         >
-          <div className="p-6">
+          <div className="p-4">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
@@ -830,13 +880,6 @@ export default function AskDoubtClient() {
                 <MessageCircleMore className="w-5 h-5" />
                 <span className="text-sm">Chat with Friends</span>
               </Link>
-              {/* <Link
-                href="https://v0.dev/"
-                className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-              >
-                <Sparkles className="w-5 h-5" />
-                <span>Webapp Builder</span>
-              </Link> */}
               <hr className="border-t-2 border-gray-400 rounded-full my-4 shadow-sm" />
               <button
                 onClick={handleNewChat}
@@ -877,19 +920,20 @@ export default function AskDoubtClient() {
                         <Link
                           href={`/ask-doubt?convoId=${chat.convoId}`}
                           onClick={() => setSelectedConvoId(chat.convoId)}
-                          className={`block text-sm px-4 py-2 rounded-lg transition-colors pr-8 ${
+                          className={`block text-sm px-4 py-2 rounded-lg transition-colors pr-[25%] truncate w-full relative ${
                             selectedConvoId === chat.convoId
                               ? "bg-purple-200 text-purple-800"
                               : "hover:bg-gray-100 text-gray-700"
                           }`}
+                          title={chat.name || "New Chat"} // optional: show full name on hover
                         >
-                          {chat.name || "Untitled Chat"}
+                          {chat.name || "New Chat"}
                         </Link>
                       )}
 
                       {chat.priority === "high" && (
                         <div
-                          className="absolute top-[25%] right-8 p-1 text-yellow-600"
+                          className="absolute top-[18%] right-8 p-1 text-yellow-600"
                           title="Pinned"
                         >
                           <TiPinOutline size={16} fill="currentColor" />
@@ -903,7 +947,7 @@ export default function AskDoubtClient() {
                             prev === chat._id ? null : chat._id
                           );
                         }}
-                        className="absolute top-[25%] right-2 p-1 hover:bg-gray-200 rounded"
+                        className="absolute top-[18%] right-2 p-1 hover:bg-gray-200 rounded"
                       >
                         <EllipsisVertical size={16} />
                       </button>
@@ -926,7 +970,8 @@ export default function AskDoubtClient() {
                           </button>
 
                           <button
-                            onClick={() => handleDeleteAiChat(chat)}
+                            type="button"
+                            onClick={() => setChatToDelete(chat)}
                             className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left text-red-600"
                           >
                             <Trash2 size={14} /> Delete Chat
@@ -968,7 +1013,35 @@ export default function AskDoubtClient() {
             </button>
           </div>
         </div>
-
+        {chatToDelete && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[999]">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-sm">
+              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                Delete this chat?
+              </h2>
+              <p className="text-sm text-gray-600 mb-6">
+                This will permanently delete the chat and all related data.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setChatToDelete(null)}
+                  className="px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    handleDeleteAiChat(chatToDelete);
+                    setChatToDelete(null);
+                  }}
+                  className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Main Section */}
         <div className="flex flex-col flex-1 lg:ml-64">
           {/* Header */}
@@ -978,10 +1051,10 @@ export default function AskDoubtClient() {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors z-100"
+                  className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors z-[100]"
                 >
                   {isSidebarOpen ? (
-                    <X className="w-6 h-6 " />
+                    <X className="w-6 h-6" />
                   ) : (
                     <Menu className="w-6 h-6" />
                   )}

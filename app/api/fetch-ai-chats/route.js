@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     const { db } = await connectToDatabase();
- 
+
     // 1. Find the user
     const user = await db
       .collection("users")
@@ -25,12 +25,6 @@ export async function GET() {
 
     // 2. Fetch chats using chat IDs from user's chats_arr
     const chatIds = user.chats_arr.map((id) => new ObjectId(id));
-
-    // const chats = await db
-    //   .collection("chats")
-    //   .find({ _id: { $in: chatIds } })
-    //   .project({ name: 1, convoId: 1, lastModified: 1, priority: 1 })
-    //   .toArray();
     const chats = await db
       .collection("chats")
       .find({ _id: { $in: chatIds } })
@@ -43,25 +37,6 @@ export async function GET() {
       .toArray();
 
     return NextResponse.json({ chats });
-    // // 3. Sort: high priority first, then by lastModified desc
-    // const sortedChats = chats.sort((a, b) => {
-    //   const getPriorityWeight = (chat) => (chat.priority === "high" ? 1 : 0);
-
-    //   const priorityDiff = getPriorityWeight(b) - getPriorityWeight(a);
-    //   if (priorityDiff !== 0) return priorityDiff;
-
-    //   return new Date(b.lastModified) - new Date(a.lastModified);
-    // });
-    // // Convert ObjectIds to string before sending
-    // const formattedChats = sortedChats.map((chat) => ({
-    //   ...chat,
-    //   _id: chat._id.toString(),
-    //   convoId: chat.convoId.toString(),
-    // }));
-
-    // // 3. Send back the chats
-    // console.log(formattedChats);
-    // return NextResponse.json({ formattedChats });
   } catch (error) {
     console.error("Error fetching user chats:", error);
     return NextResponse.json(
