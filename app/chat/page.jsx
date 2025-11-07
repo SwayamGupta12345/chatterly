@@ -37,6 +37,8 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AskDoubtPage() {
+  const menuRef = useRef(null);
+  const menuRefs = useRef({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -97,9 +99,12 @@ export default function AskDoubtPage() {
       const res = await fetch(`/api/get-friends?email=${userEmail}`);
       const data = await res.json();
       setFriends(
-        data.friends.sort(
-          (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
-        )
+        data.friends.sort((a, b) => {
+          if (a.pinned === b.pinned) {
+            return new Date(b.lastModified) - new Date(a.lastModified);
+          }
+          return a.pinned ? -1 : 1;
+        })
       );
 
       // ✅ Load last chat after setting friends
@@ -113,6 +118,29 @@ export default function AskDoubtPage() {
     };
     fetchFriends();
   }, [userEmail]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Current open chat's button ref (if exists)
+      const currentButtonRef = menuRefs.current[menuOpenId];
+
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target) &&
+        (!currentButtonRef || !currentButtonRef.contains(event.target))
+      ) {
+        setMenuOpenId(null);
+      }
+    };
+
+    if (menuOpenId !== null) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpenId]);
 
   // useEffect(() => {
   //   const handleGlobalKeydown = (e) => {
@@ -163,9 +191,12 @@ export default function AskDoubtPage() {
           }
           return f;
         });
-        const sorted = updated.sort(
-          (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
-        );
+        const sorted = updated.sort((a, b) => {
+          if (a.pinned === b.pinned) {
+            return new Date(b.lastModified) - new Date(a.lastModified);
+          }
+          return a.pinned ? -1 : 1; // keep pinned on top
+        });
 
         setUpdatedChatboxId(message.chatboxId);
         setTimeout(() => setUpdatedChatboxId(null), 800); // reset after animation
@@ -233,16 +264,97 @@ export default function AskDoubtPage() {
     }
   };
 
-  // handling the pinning of an AI chat
-  const handlePinAiChat = async (chat) => {
-    await fetch("/api/pin-ai-chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chatId: chat._id }),
-    });
+  // ✅ Delete a chat and remove it from friend list safely
+  const handleDeleteChatName = async (friend) => {
+    try {
+      const confirmDelete = confirm(`Are you sure you want to delete the chat with "${friend.nickname || friend.email}"?`);
+      if (!confirmDelete) return;
 
-    window.location.reload();
+      const userEmail = localStorage.getItem("email");
+      if (!userEmail || !friend.chatbox_id) {
+        alert("Invalid user or chatbox data.");
+        return;
+      }
+
+      const res = await fetch("/api/delete-chatbox", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userEmail,
+          chatboxId: friend.chatbox_id,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete chat.");
+      }
+
+      // ✅ Remove from UI immediately
+      setFriends((prev) => prev.filter((f) => f.chatbox_id !== friend.chatbox_id));
+
+      // If user is viewing this chat, clear it
+      if (selectedFriend?.chatbox_id === friend.chatbox_id) {
+        setSelectedFriend(null);
+        setMessages([]);
+      }
+
+      setMenuOpenId(null);
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+      alert(error.message || "Something went wrong while deleting chat.");
+    }
   };
+
+  const handlePinChatName = async (friend) => {
+    try {
+      const userEmail = localStorage.getItem("email");
+      if (!userEmail || !friend.chatbox_id) {
+        alert("Invalid user or chatbox data.");
+        return;
+      }
+
+      const res = await fetch("/api/pin-chatbox", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userEmail,
+          chatboxId: friend.chatbox_id,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to pin chat.");
+      }
+
+      // ✅ Update the pinned state locally (no reload needed)
+      setFriends((prev) =>
+        prev
+          .map((f) =>
+            f.chatbox_id === friend.chatbox_id
+              ? { ...f, pinned: !f.pinned } // toggle pinned field
+              : f
+          )
+          .sort((a, b) => {
+            if (a.pinned === b.pinned) {
+              return new Date(b.lastModified) - new Date(a.lastModified);
+            }
+            return a.pinned ? -1 : 1; // pinned on top
+          })
+      );
+
+      // ✅ Highlight for quick feedback
+      setUpdatedChatboxId(friend.chatbox_id);
+      setTimeout(() => setUpdatedChatboxId(null), 800);
+
+      setMenuOpenId(null);
+    } catch (error) {
+      console.error("Error pinning chat:", error);
+      alert(error.message || "Something went wrong while pinning chat.");
+    }
+  };
+
 
   // const handleNewChat = async () => {
   //   const searchValue = prompt(
@@ -382,7 +494,6 @@ export default function AskDoubtPage() {
     }
   };
 
-
   const handleFriendSelect = async (friend) => {
     setSelectedFriend(friend);
     localStorage.setItem("lastChatboxId", friend.chatbox_id);
@@ -420,15 +531,23 @@ export default function AskDoubtPage() {
     setInput("");
     // ✅ Move this chat to top immediately on send
     setFriends((prevFriends) => {
-      const updated = prevFriends.map((f) => {
-        if (f.chatbox_id === chatboxId) {
-          return { ...f, lastModified: new Date().toISOString() };
-        }
-        return f;
-      });
-      return updated.sort(
-        (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
+      const updated = prevFriends.map((f) =>
+        f.chatbox_id === chatboxId
+          ? { ...f, lastModified: new Date().toISOString() }
+          : f
       );
+
+      // 2️⃣ Apply pinned-aware sorting:
+      // - Pinned chats always on top
+      // - Unpinned chats sorted among themselves by lastModified (newest first)
+      const sorted = updated.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1; // a is pinned → stays on top
+        if (!a.pinned && b.pinned) return 1;  // b is pinned → stays below pinned
+        // both pinned or both unpinned → sort by lastModified
+        return new Date(b.lastModified) - new Date(a.lastModified);
+      });
+
+      return sorted;
     });
   };
 
@@ -628,51 +747,77 @@ export default function AskDoubtPage() {
                         : "hover:bg-gray-100 text-gray-700"
                         } ${updatedChatboxId === frnd.chatbox_id ? "scale-[1.03] shadow-md" : ""}`}
                     >
-                      <span className="block truncate max-w-full font-medium tracking-wide">
-                        {frnd.nickname || frnd.email}
+                      <span className="block truncate max-w-full flex items-center gap-1">
+                        <span>{frnd.nickname || frnd.email}</span>
+                        {frnd.pinned && (
+                          <span
+                            role="img"
+                            aria-label="Pinned Chat"
+                            className="text-purple-600 text-xs"
+                            title="Pinned Chat"
+                          >
+                            📌
+                          </span>
+                        )}
                       </span>
                     </button>
                   )}
                   {/* 3-dot menu trigger */}
                   <button
+                    ref={(el) => (menuRefs.current[frnd.chatbox_id] = el)}
                     onClick={(e) => {
                       e.preventDefault();
                       setMenuOpenId((prev) =>
                         prev === frnd.chatbox_id ? null : frnd.chatbox_id
                       );
                     }}
-                    className="absolute top-[25%] right-2 p-1 hover:bg-gray-200 rounded"
+                    className={`absolute top-[25%] right-2 p-1 rounded transition-colors ${menuOpenId === frnd.chatbox_id ? "bg-gray-200" : "hover:bg-gray-100"
+                      }`}
                   >
                     <EllipsisVertical size={16} />
                   </button>
 
                   {/* Dropdown menu */}
-                  {menuOpenId === frnd.chatbox_id && (
-                    <div className="absolute right-2 top-8 bg-white shadow-md rounded-md border z-10 w-40 text-sm overflow-hidden">
-                      <button
-                        onClick={() => {
-                          setEditingFriendId(frnd.chatbox_id);
-                          setEditedFriendName(frnd.nickname || "");
-                          setMenuOpenId(null);
-                        }}
-                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left"
+                  <AnimatePresence>
+                    {menuOpenId === frnd.chatbox_id && (
+                      <motion.div
+                        ref={menuRef}
+                        key={frnd.chatbox_id}
+                        initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className="absolute right-2 top-8 bg-white shadow-lg rounded-xl border border-gray-200 z-20 w-44 text-sm overflow-hidden backdrop-blur-sm bg-opacity-90
+                 transition-all duration-200 transform origin-top-right hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
                       >
-                        <Edit size={14} /> Edit Name
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAiChat(frnd)}
-                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left text-red-600"
-                      >
-                        <Trash2 size={14} /> Delete Chat
-                      </button>
-                      <button
-                        onClick={() => handlePinAiChat(frnd)}
-                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left"
-                      >
-                        <Pin size={14} /> Pin to Top
-                      </button>
-                    </div>
-                  )}
+                        <button
+                          onClick={() => {
+                            setEditingFriendId(frnd.chatbox_id);
+                            setEditedFriendName(frnd.nickname || "");
+                            setMenuOpenId(null);
+                          }}
+                          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left"
+                        >
+                          <Edit size={14} /> Edit Name
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteChatName(frnd)}
+                          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left text-red-600"
+                        >
+                          <Trash2 size={14} /> Delete Chat
+                        </button>
+
+                        <button
+                          onClick={() => handlePinChatName(frnd)}
+                          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-left"
+                        >
+                          <Pin size={14} /> Pin to Top
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                 </div>
               ))}
             </AnimatePresence>
