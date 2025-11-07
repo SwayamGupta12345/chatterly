@@ -166,7 +166,6 @@ export default function AskDoubtPage() {
     };
   }, [showDeleteConfirm]);
 
-
   // useEffect(() => {
   //   const handleGlobalKeydown = (e) => {
   //     const isAllowed = /^[a-zA-Z0-9 ]$/.test(e.key)
@@ -183,10 +182,25 @@ export default function AskDoubtPage() {
   // }, [])
 
   useEffect(() => {
-    if (!userEmail || !chatboxId) return;
+    if (!userEmail) return;
     if (!socket.current) {
       socket.current = io("https://chatterly-backend-8dwx.onrender.com", {
         transports: ["websocket"], // ensure real-time connection
+      });
+      socket.current.emit("join-room", userEmail);
+
+      // ✅ Listen globally once
+      socket.current.on("chat-created", ({ chatbox }) => {
+        console.log("📩 Chat created received:", chatbox);
+        setFriends((prev) => {
+          if (prev.some((f) => f.chatbox_id === chatbox.chatbox_id)) return prev;
+          return [chatbox, ...prev];
+        });
+      });
+
+      socket.current.on("chat-deleted", ({ chatboxId }) => {
+        console.log("🗑️ Chat deleted received:", chatboxId);
+        setFriends((prev) => prev.filter((f) => f.chatbox_id !== chatboxId));
       });
     }
     socket.current.emit("join-room", chatboxId);
@@ -234,10 +248,12 @@ export default function AskDoubtPage() {
       socket.current?.off("receive-message");
       socket.current?.off("message-deleted");
       socket.current?.off("message-edited");
+      socket.current?.off("chat-created");
+      socket.current?.off("chat-deleted");
       socket.current?.disconnect();
       socket.current = null;
     };
-  }, [chatboxId, userEmail]);
+  }, [userEmail, chatboxId]);
 
   // ✅ Function to handle save after editing friend name inline
   const handleEditChatName = async (friendId) => {
@@ -311,6 +327,12 @@ export default function AskDoubtPage() {
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to delete chat.");
       }
+
+      // ✅ Notify both users that this chat was deleted
+      socket.current?.emit("chat-deleted", {
+        chatboxId: friend.chatbox_id,
+        users: [userEmail, friend.email],
+      });
 
       // ✅ Remove from UI immediately
       setFriends((prev) => prev.filter((f) => f.chatbox_id !== friend.chatbox_id));
@@ -499,11 +521,22 @@ export default function AskDoubtPage() {
           }),
         });
 
-        setFriends((prev) =>
-          [...prev, newFriend].sort(
-            (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
-          )
-        );
+        // ✅ Tell the server to notify both users
+        socket.current?.emit("chat-created", {
+          chatbox: newFriend,
+          users: [userEmail, data.friend.email],
+        });
+
+        setFriends((prev) => {
+          const updated = [...prev, { ...newFriend, pinned: false }]; // ensure new friend is unpinned
+
+          // Sort so pinned chats stay on top, unpinned below them by time
+          return updated.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return new Date(b.lastModified) - new Date(a.lastModified);
+          });
+        });
 
         handleFriendSelect(newFriend);
         setIsAddFriendModalOpen(false);
