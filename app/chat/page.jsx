@@ -194,7 +194,13 @@ export default function AskDoubtPage() {
         console.log("📩 Chat created received:", chatbox);
         setFriends((prev) => {
           if (prev.some((f) => f.chatbox_id === chatbox.chatbox_id)) return prev;
-          return [chatbox, ...prev];
+
+          const updated = [...prev, { ...chatbox, pinned: false }];
+          return updated.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return new Date(b.lastModified) - new Date(a.lastModified);
+          });
         });
       });
 
