@@ -7,7 +7,7 @@ import {
   MessageCircleMore,
 } from "lucide-react";
 import Link from "next/link";
-
+ 
 export default function FallbackLayout({ isSidebarOpen, setIsSidebarOpen }) {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
