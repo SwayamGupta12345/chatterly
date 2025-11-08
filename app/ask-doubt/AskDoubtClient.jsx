@@ -125,7 +125,7 @@ export default function AskDoubtClient() {
 
     // ✅ new message listener
     socket.current.on("receive-message", (message, senderEmail) => {
-      if(senderEmail === userEmail) return;
+      if (senderEmail === userEmail) return;
       console.log("📩 Real-time message received:", message);
       setMessages((prev) => [...prev, message]);
     });
@@ -309,14 +309,21 @@ export default function AskDoubtClient() {
     if (!input.trim()) return;
 
     if (!userEmail) {
-      setMessages((prev) => [...prev, { role: "bot", text: "❗ Please login" }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", text: "❗ Please login" },
+      ]);
       return;
     }
 
     // 1️⃣ Push user message to UI
     const userMessage = { role: "user", text: input };
     // setMessages((prev) => [...prev, userMessage]);
-    socket.current.emit("new-message", { convoId, message: userMessage, senderEmail: userEmail });
+    socket.current.emit("new-message", {
+      convoId,
+      message: userMessage,
+      senderEmail: userEmail,
+    });
     setInput("");
     setLoading(true);
     setError("");
@@ -346,7 +353,11 @@ export default function AskDoubtClient() {
 
       // 4️⃣ Show AI response in chat
       // setMessages((prev) => [...prev, aiMessage]);
-      socket.current.emit("new-message", { convoId, message: aiMessage, senderEmail: "AI" });
+      socket.current.emit("new-message", {
+        convoId,
+        message: aiMessage,
+        senderEmail: "AI",
+      });
       // 5️⃣ Save AI response in DB
       const aiSave = await fetch("/api/Save-Message", {
         method: "POST",
@@ -1246,10 +1257,11 @@ export default function AskDoubtClient() {
                     }`}
                   >
                     <div
-                      className={`px-4 py-3 rounded-xl shadow-md break-words ${msg.role === "user"
-                        ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
-                        : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
-                        }`}
+                      className={`px-4 py-3 rounded-xl shadow-md break-words ${
+                        msg.role === "user"
+                          ? "bg-purple-100 text-right rounded-br-none self-end  max-w-[70%] sm:max-w-md"
+                          : "bg-blue-100 text-left rounded-bl-none self-start max-w-[90%] sm:max-w-2xl overflow-x-auto"
+                      }`}
                     >
                       <div className="text-xs font-semibold mb-1">
                         {msg.role === "user" ? "You" : "Bot"}
