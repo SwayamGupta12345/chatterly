@@ -106,7 +106,7 @@ export default function AskDoubtClient() {
 
   useEffect(() => {
     if (!userEmail) return;
-    socket.current = io("http://localhost:3002"); // URL of socket server
+    socket.current = io("https://chatterly-backend-2.onrender.com"); // URL of socket server
 
     socket.current.emit("join-user", userEmail);
 
