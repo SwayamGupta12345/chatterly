@@ -28,15 +28,20 @@ export async function GET() {
     const chats = await db
       .collection("chats")
       .find({ _id: { $in: chatIds } })
-      .project({ name: 1, convoId: 1, lastModified: 1, priority: 1 }) // keep projection normal
+      .project({ name: 1, convoId: 1, lastModified: 1, priority: 1, owners: 1 }) // keep projection normal
       .sort({
         priority: { $eq: "high" } ? -1 : 1, // not valid, so use below
         priority: 1, // sort by priority: "high" first if mapped to a sort value
         lastModified: -1, // latest first
       })
       .toArray();
-
-    return NextResponse.json({ chats });
+       
+      const chatsWithCount = chats.map((chat) => ({
+      ...chat,
+      ownersCount: chat.owners.length,
+    }));
+    console.log("Fetched chats with owners count:", chatsWithCount);
+    return NextResponse.json({ chats: chatsWithCount });
   } catch (error) {
     console.error("Error fetching user chats:", error);
     return NextResponse.json(

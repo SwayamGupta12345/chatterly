@@ -174,15 +174,36 @@ export default function AskDoubtClient() {
   }, []);
 
   //fetchUserChats the chats for the user
+  // const fetchUserChats = async () => {
+  //   try {
+  //     const res = await fetch("/api/fetch-ai-chats");
+  //     const data = await res.json();
+  //     if (res.ok) {
+  //       setUser_ai_chats(data.chats); // or whatever state you use to render sidebar/chat list
+  //     } else {
+  //       console.error("Error loading chats:", data.message);
+  //     }
+  //   } catch (err) {
+  //     console.error("Fetch failed:", err);
+  //   }
+  // };
   const fetchUserChats = async () => {
     try {
       const res = await fetch("/api/fetch-ai-chats");
       const data = await res.json();
-      if (res.ok) {
-        setUser_ai_chats(data.chats); // or whatever state you use to render sidebar/chat list
-      } else {
+
+      if (!res.ok) {
         console.error("Error loading chats:", data.message);
+        return;
       }
+
+      // ensure ownersCount is accessible and mapped properly
+      const chats = data.chats?.map((chat) => ({
+        ...chat,
+        ownersCount: chat.ownersCount ?? 0, // fallback if missing
+      }));
+
+      setUser_ai_chats(chats);
     } catch (err) {
       console.error("Fetch failed:", err);
     }
