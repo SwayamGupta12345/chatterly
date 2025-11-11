@@ -54,14 +54,14 @@ export async function POST(req) {
   const friendEntryForUser = {
     chatbox_id: insertedId,
     email: actualFriendEmail,
-    name: friendName || friend.nickname || "",
+    name: friendName || friend.nickname || "", // Use provided name or friend's nickname
     lastModified: new Date(),
   };
 
   const friendEntryForFriend = {
     chatbox_id: insertedId,
     email: userEmail,
-    name: friend.name || "",
+    name: friend.name || "", // Assuming 'name' field exists for user
     lastModified: new Date(),
   };
 
