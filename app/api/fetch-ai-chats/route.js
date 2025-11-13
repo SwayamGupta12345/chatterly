@@ -40,7 +40,7 @@ export async function GET() {
       ...chat,
       ownersCount: chat.owners.length,
     }));
-    console.log("Fetched chats with owners count:", chatsWithCount);
+    // console.log("Fetched chats with owners count:", chatsWithCount);
     return NextResponse.json({ chats: chatsWithCount });
   } catch (error) {
     console.error("Error fetching user chats:", error);

@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import FallbackLayout from "./FallbackLayout";
 import { Inter } from "next/font/google";
 import { useState, useEffect, useRef } from "react";
@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
   Lightbulb,
-  Menu,    
+  Menu,
   X,
   User,
   LogOut,
@@ -382,6 +382,7 @@ export default function AskDoubtClient() {
         senderEmail: "AI",
         text: aiText,
       });
+      setLoading(false);
       // 5️⃣ Save AI response in DB
       const aiSave = await fetch("/api/Save-Message", {
         method: "POST",
@@ -1321,6 +1322,13 @@ export default function AskDoubtClient() {
                               remarkPlugins={[remarkGfm]}
                               components={{
                                 p: ({ children }) => <p>{children}</p>,
+                                img: ({ src, alt }) => (
+                                  <img
+                                    src={src}
+                                    alt={alt}
+                                    className="rounded-lg max-w-full h-auto"
+                                  />
+                                ),
                                 a: ({ href, children }) => (
                                   <a
                                     href={href}
@@ -1351,7 +1359,7 @@ export default function AskDoubtClient() {
                                         marginBottom: "1rem",
                                       }}
                                     >
-                                      <pre className="bg-gray-800 text-white p-4 rounded-md overflow-x-auto text-sm">
+                                      <pre className="bg-blue-500 text-white p-4 rounded-md overflow-x-auto text-sm">
                                         <code>
                                           {typeof children === "string"
                                             ? children
