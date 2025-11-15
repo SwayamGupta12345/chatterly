@@ -50,6 +50,13 @@ export async function POST(req) {
       _id: { $in: [userMsgId, aiMsgId] },
     });
 
+    // Notify socket server about deletion
+    await fetch("https://chatterly-backend-2.onrender.com/emit-delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomId: convoId, messageId }),
+    });
+
     return NextResponse.json({ success: true, message: 'Messages deleted successfully' });
   } catch (error) {
     console.error('Error deleting AI message pair:', error);
