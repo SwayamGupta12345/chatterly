@@ -202,6 +202,12 @@ export default function AskDoubtClient() {
     fetchUserChats();
   }, []);
 
+  useEffect(() => {
+    if (convoId) {
+      setSelectedConvoId(convoId); // 🔥 highlight correct chat
+    }
+  }, [convoId, setSelectedConvoId]);
+
   const handleSubmit = async () => {
     const text = input.trim();
     if (!text) return;
@@ -374,86 +380,6 @@ export default function AskDoubtClient() {
     fetchConversation();
   }, [convoId]);
 
-  // const sendMessage = async () => {
-  //   if (!input.trim()) return;
-
-  //   if (!userEmail) {
-  //     setMessages((prev) => [
-  //       ...prev,
-  //       { role: "bot", text: "❗ Please login to use chat." },
-  //     ]);
-  //     return;
-  //   }
-
-  //   // 1️⃣ Push user message to UI
-  //   const userMessage = { role: "user", text: input };
-  //   setMessages((prev) => [...prev, userMessage]);
-  //   setInput("");
-  //   setLoading(true);
-  //   setError("");
-
-  //   try {
-  //     // 2️⃣ Save user message in DB
-  //     const userRes = await fetch("/api/Save-Message", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         senderName: userEmail,
-  //         text: input,
-  //         role: "user",
-  //       }),
-  //     });
-
-  //     const { insertedId: userMessageId } = await userRes.json();
-
-  //     // 3️⃣ Get AI response from your backend
-  //     const aiRes = await axios.post("https://askdemia1.onrender.com/chat", {
-  //       user_id: userEmail,
-  //       message: input,
-  //     });
-
-  //     const aiText = aiRes?.data?.response || "Unexpected response format.";
-  //     const aiMessage = { role: "bot", text: aiText };
-
-  //     // 4️⃣ Show AI response in chat
-  //     setMessages((prev) => [...prev, aiMessage]);
-
-  //     // 5️⃣ Save AI response in DB
-  //     const aiSave = await fetch("/api/Save-Message", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         senderName: "AI",
-  //         text: aiText,
-  //         role: "ai",
-  //       }),
-  //     });
-
-  //     const { insertedId: aiResponseId } = await aiSave.json();
-
-  //     // 6️⃣ Link both messages in conversation
-  //     await fetch("/api/add-message-pair", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         convoId,
-  //         userMessageId,
-  //         aiResponseId,
-  //       }),
-  //     });
-  //     await fetchUserChats(); // Refresh chat list to reflect any changes in chat names
-  //   } catch (err) {
-  //     console.error("Error sending message:", err);
-  //     setError("Something went wrong. Try again.");
-  //     setMessages((prev) => [
-  //       ...prev,
-  //       { role: "bot", text: "⚠️ Server error. Please try again later." },
-  //     ]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -531,6 +457,14 @@ export default function AskDoubtClient() {
           aiResponseId,
         }),
       });
+
+      // 🔥 Update lastModified timestamp
+      await fetch("/api/update-last-modified", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ convoId }),
+      });
+
       await fetchUserChats(); // Refresh chat list to reflect any changes in chat names
     } catch (err) {
       console.error("Error sending message:", err);
@@ -1649,6 +1583,14 @@ export default function AskDoubtClient() {
                             {msg.role === "user" && (
                               <>
                                 <button
+                                  onClick={() => handleCopy(msg.text)}
+                                  title="Copy message"
+                                  className="flex items-center gap-1 text-black-600 hover:underline"
+                                >
+                                  <FaCopy />
+                                  <span>Copy</span>
+                                </button>
+                                <button
                                   onClick={() => handleEditMessage(msg.id)}
                                   title="Edit message"
                                   className="flex items-center gap-1 text-blue-600 hover:underline"
@@ -1669,14 +1611,15 @@ export default function AskDoubtClient() {
                               </>
                             )}
                             {msg.role !== "user" && msg.isImg == false && (
-                            <button
-                              onClick={() => handleCopy(msg.text)}
-                              title="Copy message"
-                              className="flex items-center gap-1 text-gray-600 hover:text-purple-600 transition"
-                            >
-                              <FaCopy />
-                              <span>Copy</span>
-                            </button>)}
+                              <button
+                                onClick={() => handleCopy(msg.text)}
+                                title="Copy message"
+                                className="flex items-center gap-1 text-gray-600 hover:text-purple-600 transition"
+                              >
+                                <FaCopy />
+                                <span>Copy</span>
+                              </button>
+                            )}
                             {msg.role !== "user" && msg.isImg == false && (
                               <button
                                 onClick={() => speakText(msg.text)}
