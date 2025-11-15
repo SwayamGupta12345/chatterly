@@ -2,7 +2,7 @@
 // export const runtime = 'nodejs';
 
 // import { NextResponse } from 'next/server';
-// import { connectToDatabase } from '@/lib/mongodb'; // ensure path is correct
+// import { connectToDatabase } from '@/lib/mongodb'; //  ensure path is correct
 // import { ObjectId } from 'mongodb';
 
 // export async function POST(req) {
