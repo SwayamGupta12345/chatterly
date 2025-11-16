@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   BookOpen,
   Lightbulb,
-  Menu,   
+  Menu,
   X,
   User,
   LogOut,
@@ -964,10 +964,6 @@ export default function AskDoubtPage() {
 
             {/* Right section: Notification + Profile */}
             <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                <Bell className="w-6 h-6 text-gray-600" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              </button>
               <Link href="/profile">
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center cursor-pointer">
                   <User className="w-5 h-5 text-white" />
