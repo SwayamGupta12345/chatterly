@@ -27,7 +27,52 @@ export default function Dashboard() {
   const [searchFriend, setSearchFriend] = useState("");
   const [searchChat, setSearchChat] = useState("");
   const [user, setUser] = useState({ name: "Student" });
+  const [userEmail, setUserEmail] = useState("");
   const router = useRouter();
+  useEffect(() => {
+    const fetchSession = async () => {
+      const session = await getSession();
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+      }
+    };
+
+    fetchSession();
+  }, []);
+
+  const [friends, setFriends] = useState([]);
+  const [aiChats, setAiChats] = useState([]);
+
+  const loadAllLists = async () => {
+    if (!userEmail) return;
+
+    try {
+      // --- Load Friends ---
+      const fRes = await fetch(`/api/get-friends?email=${userEmail}`);
+      const fData = await fRes.json();
+
+      // --- Load AI Chats ---
+      const cRes = await fetch(`/api/fetch-ai-chats`);
+      const cData = await cRes.json();
+
+      setFriends(fData.friends || []);
+      setAiChats(cData.chats || []);
+    } catch (err) {
+      console.error("Error loading lists:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadAllLists();
+  }, [userEmail]);
+
+  const filteredFriends = friends.filter((f) =>
+    (f.nickname || f.email).toLowerCase().includes(searchFriend.toLowerCase())
+  );
+
+  const filteredAIChats = aiChats.filter((c) =>
+    (c.name || c.convoId).toLowerCase().includes(searchChat.toLowerCase())
+  );
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -98,13 +143,6 @@ export default function Dashboard() {
               <MessageCircleMore className="w-5 h-5" />
               <span>Chat with Friends</span>
             </Link>
-            {/* <Link
-              href="https://v0.dev/"
-              className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-            >
-              <Sparkles className="w-5 h-5" />
-              <span>Webapp Builder</span>
-            </Link> */}
           </nav>
         </div>
 
@@ -139,10 +177,6 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                <Bell className="w-6 h-6 text-gray-600" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              </button>
               <Link href="/profile">
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center cursor-pointer">
                   <User className="w-5 h-5 text-white" />
@@ -214,6 +248,59 @@ export default function Dashboard() {
                 onChange={(e) => setSearchChat(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-white/60 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
               />
+            </div>
+            {/* FRIENDS LIST */}
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-2 text-gray-700">
+                Friends
+              </h2>
+              <div className="space-y-3">
+                {filteredFriends.length === 0 && (
+                  <p className="text-sm text-gray-400">No friends found</p>
+                )}
+
+                {filteredFriends.map((f) => (
+                  <div
+                    key={f.chatbox_id}
+                    onClick={() => router.push(`/chat?convoId=${f.chatbox_id}`)}
+                    className="p-3 bg-white/50 hover:bg-white/70 cursor-pointer rounded-xl border border-white/20 flex justify-between items-center"
+                  >
+                    <span className="font-medium">{f.nickname || f.email}</span>
+                    <span className="text-xs text-gray-400">
+                      {new Date(f.lastModified).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* AI CHATS LIST */}
+            <div>
+              <h2 className="text-lg font-semibold mb-2 text-gray-700">
+                AI Chats
+              </h2>
+              <div className="space-y-3">
+                {filteredAIChats.length === 0 && (
+                  <p className="text-sm text-gray-400">No chats found</p>
+                )}
+
+                {filteredAIChats.map((c) => (
+                  <div
+                    key={c._id}
+                    onClick={() =>
+                      router.push(`/ask-doubt?convoId=${c.convoId}`)
+                    }
+                    className="p-3 bg-white/50 hover:bg-white/70 cursor-pointer rounded-xl border border-white/20 flex justify-between items-center"
+                  >
+                    <span className="font-medium">
+                      {c.name || "Untitled Chat"}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {new Date(c.lastModified).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </main>
