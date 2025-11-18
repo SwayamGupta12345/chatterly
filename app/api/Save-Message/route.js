@@ -4,7 +4,7 @@
 // import { NextResponse } from 'next/server';
 // import { connectToDatabase } from '@/lib/mongodb'; //  ensure path is correct
 // import { ObjectId } from 'mongodb';
-
+ 
 // export async function POST(req) {
 //   try {
 //     const { senderName, text, role } = await req.json();
