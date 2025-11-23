@@ -330,7 +330,7 @@ export default function LandingPage() {
 
                 <div className="flex items-center space-x-4 mb-4">
                   <img
-                    src="./Swayam.jpg"
+                    src="./swayam.jpg"
                     alt="Swayam Gupta"
                     className="w-12 h-12 rounded-full border-2 border-purple-500"
                   />
@@ -368,7 +368,7 @@ export default function LandingPage() {
 
                 <div className="flex items-center space-x-4 mb-4">
                   <img
-                    src="./Rishu.jpg"
+                    src="./rishu.jpg"
                     alt="Rishu"
                     className="w-12 h-12 rounded-full border-2 border-purple-500"
                   />
@@ -429,7 +429,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-white/10 mt-12 pt-8 text-center text-gray-300">
-            <p>&copy; 2024 ChatterlyAI. All rights reserved.</p>
+            <p>&copy; 2025 ChatterlyAI. All rights reserved.</p>
           </div>
         </div>
       </footer>
