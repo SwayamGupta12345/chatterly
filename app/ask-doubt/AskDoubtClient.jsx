@@ -92,7 +92,7 @@ export default function AskDoubtClient() {
   const sendToWhatsApp = (text) =>
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
   const sendToGmail = (text, recipientEmail) => {
-    const subject = encodeURIComponent("Chatterly");
+    const subject = encodeURIComponent("ChatterlyAI");
     const body = encodeURIComponent(text);
     const to = encodeURIComponent(recipientEmail || "");
     const gmailUrl = `https://mail.google.com/mail/u/0/?fs=1&to=${to}&su=${subject}&body=${body}&tf=cm`;
@@ -1069,7 +1069,7 @@ export default function AskDoubtClient() {
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  Chatterly
+                  ChatterlyAI
                 </span>
               </div>
 
