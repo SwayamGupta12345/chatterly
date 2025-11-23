@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { ChevronRight, BookOpen, Lightbulb, Users, MessageCircle, Star, Menu, X, Github, Linkedin, Mail } from "lucide-react"
 import { FiGithub, FiLinkedin  } from "react-icons/fi";
+import { RiImageAiFill } from "react-icons/ri";
 import Link from "next/link"
 
 export default function LandingPage() {
@@ -24,6 +25,11 @@ export default function LandingPage() {
       icon: MessageCircle,
       title: "Chat System",
       description: "Chat woth your friends withing this webapp",
+    },
+    {
+      icon: RiImageAiFill,
+      title: "Image Generation",
+      description: "Generate images using AI within this webapp",
     },
   ]
 
