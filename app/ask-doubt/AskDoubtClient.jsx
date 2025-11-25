@@ -1033,7 +1033,7 @@ export default function AskDoubtClient() {
         localStorage.clear(); // optional: clears all keys
 
         // Optional: redirect user
-        // window.location.href = "/login";
+        router.push("/login");
       }
     } catch (err) {
       console.error("Logout failed", err);

@@ -696,7 +696,7 @@ export default function AskDoubtPage() {
         // Clear LocalStorage
         localStorage.removeItem("auth_token");
         localStorage.clear(); // optional: clears all keys
-
+        router.push("/login");
         // Optional: redirect user
         // window.location.href = "/login";
       }
