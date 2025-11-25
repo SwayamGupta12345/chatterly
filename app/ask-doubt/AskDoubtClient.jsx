@@ -1409,12 +1409,11 @@ export default function AskDoubtClient() {
           )}
 
           {/* Chat Body */}
-          <div className="p-6">
+          {/* <div className="p-6">
             <h1 className="text-xl font-bold mb-4">
               Chat: {convoId || "No convo selected"}
             </h1>
-            {/* render your chat UI using messages */}
-          </div>
+          </div> */}
           <main className="flex-1 relative overflow-x-hidden">
             <div className="h-full flex flex-col">
               <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 pb-32">

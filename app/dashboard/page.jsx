@@ -26,7 +26,7 @@ export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchFriend, setSearchFriend] = useState("");
   const [searchChat, setSearchChat] = useState("");
-  const [user, setUser] = useState({ name: "Student" });
+  const [user, setUser] = useState({ name: "" });
   const [userEmail, setUserEmail] = useState("");
   const router = useRouter();
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function Dashboard() {
       if (!session || !session.user) {
         router.push("/login");
       } else {
-        setUser({ name: session.user.name || "Student" });
+        setUser({ name: session.user.name || "" });
       }
     };
     checkAuth();
@@ -208,11 +208,13 @@ export default function Dashboard() {
           {/* Welcome Section */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">
-              Welcome back, {user.name}! 👋
+              Welcome back
+              {user?.name && user.name.trim() !== ""
+                ? `, ${user.name}! 👋`
+                : ","}
             </h2>
-            <p className="text-gray-600">
-              Ready to continue your learning journey?
-            </p>
+
+            <p className="text-gray-600">Ready to continue?</p>
           </div>
 
           {/* Stats Cards */}
