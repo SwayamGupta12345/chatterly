@@ -1,53 +1,68 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { BookOpen, Bell, User, Save, ArrowLeft, Menu, X, LogOut, Mail, School, BookMarked, MessageCircleMore, Lightbulb, LayoutDashboard } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Lock } from "lucide-react"
+import { useState, useEffect } from "react";
+import {
+  BookOpen,
+  Bell,
+  User,
+  Save,
+  ArrowLeft,
+  Menu,
+  X,
+  LogOut,
+  Mail,
+  School,
+  BookMarked,
+  MessageCircleMore,
+  Lightbulb,
+  LayoutDashboard,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Lock } from "lucide-react";
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
-    name: "", 
+    name: "",
     email: "",
     nickname: "",
     pass: "",
     // branch: "",
-  })
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
-  const router = useRouter()
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    fetchProfile()
-  }, [])
+    fetchProfile();
+  }, []);
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch("/api/profile") // ❌ No headers needed
-      const data = await response.json()
+      const response = await fetch("/api/profile"); // ❌ No headers needed
+      const data = await response.json();
       if (response.ok) {
-        setFormData(data.user)
+        setFormData(data.user);
       }
     } catch (error) {
-      console.error("Error fetching profile:", error)
+      console.error("Error fetching profile:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsSaving(true)
-    setError("")
-    setSuccess("")
+    e.preventDefault();
+    setIsSaving(true);
+    setError("");
+    setSuccess("");
 
     if (!formData.pass) {
-      setError("Password is required.")
-      return
+      setError("Password is required.");
+      return;
     }
 
     try {
@@ -58,34 +73,51 @@ export default function ProfilePage() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(formData),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Profile updated successfully!")
+        setSuccess("Profile updated successfully!");
       } else {
-        setError(data.message || "Failed to update profile")
+        setError(data.message || "Failed to update profile");
       }
     } catch (error) {
-      setError("Network error. Please try again.")
+      setError("Network error. Please try again.");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
+  // const handleLogout = async () => {
+  //   try {
+  //     await fetch("/api/logout", { method: "POST" });
+  //     localStorage.removeItem("token")
+  //     router.push("/login"); // Or "/"
+  //   } catch (err) {
+  //     console.error("Logout failed", err);
+  //   }
+  // };
+  // handling the logout of a user
   const handleLogout = async () => {
     try {
-      await fetch("/api/logout", { method: "POST" });
-      localStorage.removeItem("token")
-      router.push("/login"); // Or "/"
+      const res = await fetch("/api/logout", { method: "POST" });
+
+      if (res.ok) {
+        // Clear LocalStorage
+        localStorage.removeItem("auth_token");
+        localStorage.clear(); // optional: clears all keys
+
+        // Optional: redirect user
+        // window.location.href = "/login";
+      }
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -95,12 +127,17 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+        className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
       >
         <div className="p-6">
           <div className="flex items-center space-x-2 mb-8">
@@ -113,15 +150,24 @@ export default function ProfilePage() {
           </div>
 
           <nav className="space-y-2">
-            <Link href="/dashboard" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+            <Link
+              href="/dashboard"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+            >
               <LayoutDashboard className="w-5 h-5" />
               <span>Dashboard</span>
             </Link>
-            <Link href="/ask-doubt" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+            <Link
+              href="/ask-doubt"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+            >
               <Lightbulb className="w-5 h-5" />
               <span>Chatbot</span>
             </Link>
-            <Link href="/chat" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+            <Link
+              href="/chat"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+            >
               <MessageCircleMore className="w-5 h-5" />
               <span>Chat with Friends</span>
             </Link>
@@ -153,7 +199,11 @@ export default function ProfilePage() {
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {isSidebarOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
               </button>
               {/* <Link
                 href="/dashboard"
@@ -189,7 +239,9 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold mb-2">Profile Settings</h1>
-                  <p className="text-purple-100">Manage your account information and preferences</p>
+                  <p className="text-purple-100">
+                    Manage your account information and preferences
+                  </p>
                 </div>
               </div>
             </div>
@@ -208,7 +260,9 @@ export default function ProfilePage() {
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
+                  {error}
+                </div>
               )}
 
               {isLoading ? (
@@ -223,7 +277,10 @@ export default function ProfilePage() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       <div className="flex items-center">
                         <User className="w-4 h-4 mr-2" />
                         Full Name
@@ -242,7 +299,10 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       <div className="flex items-center">
                         <Mail className="w-4 h-4 mr-2" />
                         Email Address
@@ -261,7 +321,10 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="pass"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       <div className="flex items-center">
                         <Lock className="w-4 h-4 mr-2" />
                         New Password
@@ -280,7 +343,10 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label htmlFor="college" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="college"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       <div className="flex items-center">
                         <School className="w-4 h-4 mr-2" />
                         NickName
@@ -339,5 +405,5 @@ export default function ProfilePage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

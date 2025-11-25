@@ -86,10 +86,27 @@ export default function Dashboard() {
     checkAuth();
   }, []);
 
+  // const handleLogout = async () => {
+  //   try {
+  //     await fetch("/api/logout", { method: "POST" });
+  //     router.push("/login"); // Or "/"
+  //   } catch (err) {
+  //     console.error("Logout failed", err);
+  //   }
+  // };
+  // handling the logout of a user
   const handleLogout = async () => {
     try {
-      await fetch("/api/logout", { method: "POST" });
-      router.push("/login"); // Or "/"
+      const res = await fetch("/api/logout", { method: "POST" });
+
+      if (res.ok) {
+        // Clear LocalStorage
+        localStorage.removeItem("auth_token");
+        localStorage.clear(); // optional: clears all keys
+
+        // Optional: redirect user
+        // window.location.href = "/login";
+      }
     } catch (err) {
       console.error("Logout failed", err);
     }

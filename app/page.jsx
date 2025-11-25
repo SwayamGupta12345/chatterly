@@ -519,7 +519,7 @@ export default function LandingPage() {
                     href="/terms"
                     className="text-gray-300 hover:text-white transition-colors"
                   >
-                    Terms of Service
+                    Terms of Use
                   </a>
                 </li>
               </ul>

@@ -180,7 +180,7 @@ export default function SignupPage() {
               <span className="ml-2 text-sm text-gray-600">
                 I agree to the{" "}
                 <a href="#" className="text-purple-600 hover:text-purple-700 transition-colors">
-                  Terms of Service
+                  Terms of Use
                 </a>{" "}
                 and{" "}
                 <a href="#" className="text-purple-600 hover:text-purple-700 transition-colors">
