@@ -44,7 +44,7 @@ export async function POST(req) {
 
     // ✅ NEW PART — Notify Socket Server
     try {
-      await axios.post("https://chatterly-backend-2.onrender.com/emit-share", {
+      await axios.post("https://chatterly-backend-2-es62.onrender.com/emit-share", {
         targetEmail: targetUser.email,
         chatbox: {
           _id: chatDoc._id,

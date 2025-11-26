@@ -51,7 +51,7 @@ export async function POST(req) {
     });
 
     // Notify socket server about deletion
-    await fetch("https://chatterly-backend-2.onrender.com/emit-delete", {
+    await fetch("https://chatterly-backend-2-es62.onrender.com/emit-delete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ roomId: convoId, messageId }),
