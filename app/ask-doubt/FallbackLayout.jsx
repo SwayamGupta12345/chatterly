@@ -1,13 +1,7 @@
 // FallbackLayout.jsx
-import {
-  BookOpen,
-  X,
-  LayoutDashboard,
-  Lightbulb,
-  MessageCircleMore,
-} from "lucide-react";
+import { X, LayoutDashboard, Lightbulb, MessageCircleMore } from "lucide-react";
 import Link from "next/link";
- 
+
 export default function FallbackLayout({ isSidebarOpen, setIsSidebarOpen }) {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative">
@@ -21,7 +15,11 @@ export default function FallbackLayout({ isSidebarOpen, setIsSidebarOpen }) {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
+                <img
+                  src="/chatterly_logo.png"
+                  alt="logo"
+                  className="w-full h-full object-cover rounded-md"
+                />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 ChatterlyAI

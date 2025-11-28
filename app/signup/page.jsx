@@ -1,31 +1,31 @@
-"use client"
-import { signIn } from "next-auth/react"
-import { useState } from "react"
-import { Eye, EyeOff, BookOpen, ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+"use client";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const router = useRouter()
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
-      setIsLoading(false)
-      return
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
     }
 
     try {
@@ -38,38 +38,38 @@ export default function SignupPage() {
           email: formData.email,
           password: formData.password,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("token", data.token)
-        router.push("/dashboard")
+        localStorage.setItem("token", data.token);
+        router.push("/dashboard");
       } else {
-        setError(data.message || "Signup failed")
+        setError(data.message || "Signup failed");
       }
     } catch (err) {
-      setError("Network error. Please try again.")
+      setError("Network error. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleGoogleLogin = () => {
-    setIsGoogleLoading(true)
-    signIn("google", { callbackUrl: "/dashboard" })
+    setIsGoogleLoading(true);
+    signIn("google", { callbackUrl: "/dashboard" });
     // const callbackUrl = process.env.NODE_ENV === "production"
     //   ? `${window.location.origin}/dashboard`
     //   : "http://localhost:3000/dashboard";
     signIn("google", { callbackUrl, redirect: true });
-  }
+  };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -89,24 +89,35 @@ export default function SignupPage() {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-white" />
+                <img
+                  src="/chatterly_logo.png"
+                  alt="logo"
+                  className="w-full h-full object-cover rounded-md"
+                />
               </div>
             </div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
               Join ChatterlyAI
             </h1>
-            <p className="text-gray-600">Create your account and start learning</p>
+            <p className="text-gray-600">
+              Create your account and start learning
+            </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">{error}</div>
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
+              {error}
+            </div>
           )}
 
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -122,7 +133,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Password
               </label>
               <div className="relative">
@@ -141,13 +155,20 @@ export default function SignupPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Confirm Password
               </label>
               <div className="relative">
@@ -166,7 +187,11 @@ export default function SignupPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -179,11 +204,17 @@ export default function SignupPage() {
               />
               <span className="ml-2 text-sm text-gray-600">
                 I agree to the{" "}
-                <a href="#" className="text-purple-600 hover:text-purple-700 transition-colors">
+                <a
+                  href="#"
+                  className="text-purple-600 hover:text-purple-700 transition-colors"
+                >
                   Terms of Use
                 </a>{" "}
                 and{" "}
-                <a href="#" className="text-purple-600 hover:text-purple-700 transition-colors">
+                <a
+                  href="#"
+                  className="text-purple-600 hover:text-purple-700 transition-colors"
+                >
                   Privacy Policy
                 </a>
               </span>
@@ -217,17 +248,26 @@ export default function SignupPage() {
                   <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin mr-2"></div>
                   Signing In...
                 </div>
-              ) : (<>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google" className="w-5 h-5 mr-2" />
-                Continue with Google
-              </>)}
+              ) : (
+                <>
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png"
+                    alt="Google"
+                    className="w-5 h-5 mr-2"
+                  />
+                  Continue with Google
+                </>
+              )}
             </button>
           </div>
           {/* Login Link */}
           <div className="text-center mt-8">
             <p className="text-gray-600">
               Already have an account?{" "}
-              <Link href="/login" className="text-purple-600 hover:text-purple-700 font-semibold transition-colors">
+              <Link
+                href="/login"
+                className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
+              >
                 Sign in here
               </Link>
             </p>
@@ -235,5 +275,5 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

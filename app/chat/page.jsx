@@ -1,27 +1,19 @@
 "use client";
-import { Inter } from "next/font/google";
+
 import { useState, useEffect, useRef } from "react";
 import {
-  BookOpen,
   Lightbulb,
   Menu,
   X,
   User,
   LogOut,
-  ArrowLeft,
   Send,
   LayoutDashboard,
   MessageCircleMore,
-  Bell,
-  MessageSquareDiff,
-  Share,
-  Lock,
   EllipsisVertical,
   Edit,
   Trash2,
   Pin,
-  Mail,
-  Sparkles,
 } from "lucide-react";
 import { TiPinOutline } from "react-icons/ti";
 import Link from "next/link";
@@ -721,7 +713,11 @@ export default function AskDoubtPage() {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
+                <img
+                  src="/chatterly_logo.png"
+                  alt="logo"
+                  className="w-full h-full object-cover rounded-md"
+                />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 ChatterlyAI

@@ -1,7 +1,7 @@
 // "use client"
 
 // import { useEffect, useState } from "react"
-// import { Eye, EyeOff, BookOpen, ArrowLeft } from "lucide-react"
+// import { Eye, EyeOff,ArrowLeft } from "lucide-react"
 // import Link from "next/link"
 // import { useRouter, useSearchParams } from "next/navigation"
 // import { signIn } from "next-auth/react";
@@ -64,7 +64,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, BookOpen, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -99,10 +99,9 @@ export default function LoginPage() {
 
       if (res?.error) {
         setError(res.error || "Login failed");
-      } 
-      else {
+      } else {
         // success
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise((r) => setTimeout(r, 300));
         router.replace("/dashboard");
       }
     } catch (err) {
@@ -144,7 +143,11 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-white" />
+                <img
+                  src="/chatterly_logo.png"
+                  alt="logo"
+                  className="w-full h-full object-cover rounded-md"
+                />
               </div>
             </div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
