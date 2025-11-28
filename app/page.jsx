@@ -188,6 +188,8 @@ export default function LandingPage() {
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               This is a student-built AI Project. No personal information is
               stored or shared.
+              This is a student-built AI Project. No personal information is
+              stored or shared.
             </p>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               Join thousands of people who are revolutionizing their Working
