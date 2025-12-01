@@ -121,15 +121,6 @@ export default function AskDoubtClient() {
       });
     });
 
-    // // ✅ new message listener
-    // socket.current.on("receive-message", ({ chatboxId, senderEmail, text }) => {
-    //   // Push message to UI instantly
-    //   if (!text.trim()) return;
-    //   setMessages((prev) => [
-    //     ...prev,
-    //     { role: senderEmail === "AI" ? "bot" : "user", text },
-    //   ]);
-    // });
     socket.current.on(
       "receive-message",
       ({ chatboxId, senderEmail, text, isImg, imageUrl }) => {
@@ -540,7 +531,7 @@ export default function AskDoubtClient() {
 
   const handleSendShare = async (method) => {
     if (!selectedUser) return alert("Select a user to share with.");
-    if (!shareMessage.trim()) return alert("Please enter a message to share.");
+    // if (!shareMessage.trim()) return alert("Please enter a message to share.");
     if (selectedUser.email === userEmail) {
       alert("You cannot share chat with yourself.");
       return;
@@ -558,7 +549,7 @@ export default function AskDoubtClient() {
       });
 
       const data = await res.json();
-      if (!res.ok) alert("Share failed to add in db");
+      if (!res.ok) alert("Share failed");
 
       const chatUrl = `${window.location.origin}/ask-doubt?convoId=${convoId}`;
       const fullMessage = `${shareMessage.trim()}\n\nView chat: ${chatUrl}`;
@@ -1328,17 +1319,16 @@ export default function AskDoubtClient() {
           </header>
           {showShare && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-              <div className="bg-white rounded-xl shadow-xl p-6 w-[90%] max-w-sm relative">
+              <div className="bg-white rounded-xl shadow-xl p-6  max-w-md relative">
+                {/* Title */}
+                <h2 className="text-lg font-semibold mb-4">Share this Chat</h2>
                 {/* Close Button */}
                 <button
                   onClick={() => setShowShare(false)}
-                  className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-md"
+                  className="absolute top-[25px] right-4 p-1 hover:bg-gray-100 rounded-md"
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
-
-                {/* Title */}
-                <h2 className="text-lg font-semibold mb-4">Share this page</h2>
 
                 {/* Add people */}
                 <label className="block text-sm font-medium mb-1">
@@ -1372,37 +1362,58 @@ export default function AskDoubtClient() {
                 <div className="flex items-center gap-2 text-sm text-gray-700 mb-4">
                   <Lock className="w-4 h-4 text-gray-500" />
                   <span>
-                    Restricted — Only people with access can open with the link
+                    Restricted — Only people with access can the chat open with
+                    the link
                   </span>
                 </div>
 
                 {/* Buttons */}
-                <div className="flex flex-wrap gap-3 justify-between mt-4">
-                  {/* Share buttons on the left */}
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => handleSendShare("gmail")}
-                      className="flex items-center text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                    >
-                      <Mail className="w-4 h-4 mr-2" />
-                      Gmail
-                    </button>
-                    <button
-                      onClick={() => handleSendShare("whatsapp")}
-                      className="flex items-center text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-                    >
-                      <FaWhatsapp className="w-4 h-4 mr-2" />
-                      WhatsApp
-                    </button>
-                  </div>
+                <div className="mt-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-around">
+                    {/* LEFT SIDE – Share buttons */}
+                    <div className="flex flex-wrap gap-3 w-full sm:flex-nowrap">
+                      {/* Group 1 (Gmail + WhatsApp) on mobile */}
+                      <div className="flex gap-3 items-center w-full sm:w-auto">
+                        <button
+                          onClick={() => handleSendShare("gmail")}
+                          className="flex items-center justify-center sm:justify-start 
+                     text-sm bg-blue-600 text-white px-3 py-2 rounded-lg 
+                     hover:bg-blue-700 transition w-full sm:w-auto"
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          Gmail
+                        </button>
 
-                  {/* Cancel button aligned right */}
-                  <button
-                    onClick={() => setShowShare(false)}
-                    className="text-sm bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition ml-auto"
-                  >
-                    Cancel
-                  </button>
+                        <button
+                          onClick={() => handleSendShare("whatsapp")}
+                          className="flex items-center justify-center sm:justify-start
+                     text-sm bg-green-600 text-white px-3 py-2 rounded-lg 
+                     hover:bg-green-700 transition w-full sm:w-auto"
+                        >
+                          <FaWhatsapp className="w-4 h-4 mr-2" />
+                          WhatsApp
+                        </button>
+                      </div>
+
+                      {/* Group 2 (OK + Cancel) on mobile */}
+                      <div className="flex gap-3 w-full sm:w-auto">
+                        <button
+                          onClick={() => handleSendShare("ChatterlyAI")}
+                          className="flex items-center justify-center text-sm bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition w-full sm:w-auto"
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          OK
+                        </button>
+
+                        <button
+                          onClick={() => setShowShare(false)}
+                          className="flex items-center justify-center text-sm bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition w-full sm:w-auto"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
