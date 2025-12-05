@@ -53,19 +53,21 @@ export async function POST(req) {
   const result = await db.collection("chatboxes").insertOne(chatbox);
   const insertedId = result.insertedId;
 
+  console.log(`Friend Name: {friendName}, Friend Nickname: {friend.nickname}`);
   // ✅ Update both users' frnd_arr with new structure
   const friendEntryForUser = {
     chatbox_id: insertedId,
     email: actualFriendEmail,
-    name: friendName || friend.nickname || "", // Use provided name or friend's nickname
+    name: friendName || "", // Use provided name or friend's nickname
     lastModified: new Date(),
   };
   const me = await db.collection("users").findOne({ email: userEmail });
+  console.log(`user Name: {me.Name}, user Nickname: {me.nickname}`);
 
   const friendEntryForFriend = {
     chatbox_id: insertedId,
     email: userEmail,
-    name: me.nickname || "", // correct field for friend's view in db
+    name: me.name || "", // correct field for friend's view in db
     lastModified: new Date(),
   };
 
@@ -88,8 +90,8 @@ export async function POST(req) {
     success: true,
     chatbox: { ...chatbox, _id: insertedId },
     friend: {
-      email: friend.email,
-      nickname: friend.nickname || "",
-    },
+    email: friend.email,
+    name: friendName
+  },
   });
 }
