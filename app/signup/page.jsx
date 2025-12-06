@@ -284,14 +284,14 @@ export default function SignupPage() {
               <span className="ml-2 text-sm text-gray-600">
                 I agree to the{" "}
                 <a
-                  href="#"
+                  href="/terms"
                   className="text-purple-600 hover:text-purple-700 transition-colors"
                 >
                   Terms of Use
-                </a>{" "}
-                and{" "}
+                </a>
+                {" "}and{" "}
                 <a
-                  href="#"
+                  href="/privacy-policy"
                   className="text-purple-600 hover:text-purple-700 transition-colors"
                 >
                   Privacy Policy
