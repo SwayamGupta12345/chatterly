@@ -67,6 +67,7 @@ function ChatPageInner() {
   const [editingText, setEditingText] = useState("");
   const [updatedChatboxId, setUpdatedChatboxId] = useState(null);
   const [menuOpenId, setMenuOpenId] = useState(null);
+  const [onlineMap, setOnlineMap] = useState({});
   const handleCopy = (text) => navigator.clipboard.writeText(text);
   const sendToWhatsApp = (text) =>
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
@@ -134,6 +135,8 @@ function ChatPageInner() {
         })
       );
 
+      socket.current?.emit("request-online-users");
+      
       // ✅ Prefer chatboxId from URL, else fallback to last stored
       const chatboxIdFromUrl = searchParams.get("chatboxId");
       if (chatboxIdFromUrl) {
@@ -222,6 +225,7 @@ function ChatPageInner() {
       socket.current = io("https://Chatterly-backend-8dwx.onrender.com", {
         transports: ["websocket"], // ensure real-time connection
       });
+
       socket.current.emit("join-room", userEmail);
 
       // ✅ Listen globally once
@@ -250,6 +254,23 @@ function ChatPageInner() {
 
       // });
 
+      socket.current.on("user-online-status", ({ email, isOnline }) => {
+        setOnlineMap((prev) => ({
+          ...prev,
+          [email]: isOnline,
+        }));
+      });
+
+      socket.current.on("online-users-list", (list) => {
+        setOnlineMap((prev) => {
+          const newMap = { ...prev };
+          list.forEach(email => {
+            newMap[email] = true;
+          });
+          return newMap;
+        });
+      });
+
       socket.current.on("chat-created", async () => {
         const res = await fetch(`/api/get-friends?email=${userEmail}`);
         const data = await res.json();
@@ -267,7 +288,7 @@ function ChatPageInner() {
         setFriends((prev) => prev.filter((f) => f.chatbox_id !== chatboxId));
       });
     }
-    socket.current.emit("join-room", chatboxId);
+    // socket.current.emit("join-room", chatboxId);
 
     // 🟢 Message edited
     socket.current.on("message-edited", ({ messageId, newText }) => {
@@ -791,9 +812,8 @@ function ChatPageInner() {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
+        className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
@@ -908,18 +928,26 @@ function ChatPageInner() {
                         setEditingFriendId(frnd.chatbox_id);
                         setEditedFriendName(frnd.name || "");
                       }}
-                      className={`w-full text-left px-4 py-2 rounded-xl transition-colors transform duration-300 ${
-                        selectedFriend?.chatbox_id === frnd.chatbox_id
-                          ? "bg-purple-200 text-purple-800"
-                          : "hover:bg-gray-100 text-gray-700"
-                      } ${
-                        updatedChatboxId === frnd.chatbox_id
+                      className={`w-full text-left px-4 py-2 rounded-xl transition-colors transform duration-300 ${selectedFriend?.chatbox_id === frnd.chatbox_id
+                        ? "bg-purple-200 text-purple-800"
+                        : "hover:bg-gray-100 text-gray-700"
+                        } ${updatedChatboxId === frnd.chatbox_id
                           ? "scale-[1.03] shadow-md"
                           : ""
-                      }`}
+                        }`}
                     >
                       <span className="block truncate max-w-[75%]  items-center gap-1">
-                        <span>{frnd.name || frnd.email}</span>
+                        {/* <span>{frnd.name || frnd.email}</span> */}
+                        <span className="flex items-center gap-2">
+                          <span>{frnd.name || frnd.email}</span>
+
+                          {onlineMap[frnd.email] ? (
+                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                          ) : (
+                            <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                          )}
+                        </span>
+
                       </span>
                     </button>
                   )}
@@ -944,11 +972,10 @@ function ChatPageInner() {
                           prev === frnd.chatbox_id ? null : frnd.chatbox_id
                         );
                       }}
-                      className={`p-1 rounded transition-colors ${
-                        menuOpenId === frnd.chatbox_id
-                          ? "bg-gray-200"
-                          : "hover:bg-gray-100"
-                      }`}
+                      className={`p-1 rounded transition-colors ${menuOpenId === frnd.chatbox_id
+                        ? "bg-gray-200"
+                        : "hover:bg-gray-100"
+                        }`}
                     >
                       <EllipsisVertical size={16} />
                     </button>
@@ -1046,7 +1073,7 @@ function ChatPageInner() {
                   <Menu className="w-6 h-6" />
                 )}
               </button>
-              <h1 class="text-2xl font-bold text-gray-800 flex items-center space-x-3">
+              <h1 className="text-2xl font-bold text-gray-800 flex items-center space-x-3">
                 <MessageCircleMore class="w-6 h-6" />
                 <span>Chat with Friends</span>
               </h1>
@@ -1085,25 +1112,23 @@ function ChatPageInner() {
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`flex ${
-                    msg.senderEmail === userEmail
-                      ? "justify-end"
-                      : "justify-start"
-                  }`}
+                  className={`flex ${msg.senderEmail === userEmail
+                    ? "justify-end"
+                    : "justify-start"
+                    }`}
                 >
                   <div
-                    className={`px-4 py-3 rounded-xl shadow-md max-w-[100vw] md:max-w-md ${
-                      msg.senderEmail === userEmail
-                        ? "bg-purple-100 text-right rounded-br-none"
-                        : "bg-blue-100 text-left rounded-bl-none self-start"
-                    }`}
+                    className={`px-4 py-3 rounded-xl shadow-md max-w-[100vw] md:max-w-md ${msg.senderEmail === userEmail
+                      ? "bg-purple-100 text-right rounded-br-none"
+                      : "bg-blue-100 text-left rounded-bl-none self-start"
+                      }`}
                   >
                     <div className="text-xs font-semibold text-gray-600 mb-1">
                       {msg.senderEmail === userEmail
                         ? "You"
                         : selectedFriend?.name ||
-                          selectedFriend?.email ||
-                          "Friend"}
+                        selectedFriend?.email ||
+                        "Friend"}
                     </div>
 
                     <div className="markdown-content text-sm text-gray-800 max-w-[90vw] md:max-w-md overflow-x-auto whitespace-pre-wrap break-words">
@@ -1186,8 +1211,8 @@ function ChatPageInner() {
                                       {typeof children === "string"
                                         ? children
                                         : Array.isArray(children)
-                                        ? children.join("")
-                                        : ""}
+                                          ? children.join("")
+                                          : ""}
                                     </code>
                                   </pre>
                                   <div
@@ -1344,11 +1369,10 @@ function ChatPageInner() {
                 />
                 <button
                   onClick={sendMessage}
-                  className={`bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full transition ${
-                    !input.trim()
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:opacity-90"
-                  }`}
+                  className={`bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full transition ${!input.trim()
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:opacity-90"
+                    }`}
                 >
                   <Send className="w-4 h-4" />
                 </button>
