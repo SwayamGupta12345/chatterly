@@ -5,12 +5,15 @@ import {
   ChevronRight,
   Lightbulb,
   Users,
-  MessageCircle,
+  MessageCircleMore,
   Star,
   Menu,
   X,
   Mail,
 } from "lucide-react";
+import { RxCode } from "react-icons/rx";
+import { IoShieldCheckmarkOutline } from "react-icons/io5";
+
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { RiImageAiFill } from "react-icons/ri";
 import Link from "next/link";
@@ -32,14 +35,26 @@ export default function LandingPage() {
         "Many People can work on same chat when shared by admin like Google Docs",
     },
     {
-      icon: MessageCircle,
+      icon: MessageCircleMore,
       title: "Chat System",
-      description: "Chat woth your friends withing this webapp",
+      description: "Chat with your friends within this webapp",
     },
     {
       icon: RiImageAiFill,
       title: "Image Generation",
       description: "Generate images using AI within this webapp",
+    },
+    {
+      icon: RxCode,
+      title: "Code Assistance",
+      description:
+        "Get help with coding, debugging, and algorithm explanations using AI.",
+    },
+    {
+      icon: IoShieldCheckmarkOutline,
+      title: "Privacy & Security",
+      description:
+        "All user data stays private with end-to-end encrypted sessions and local storage.",
     },
   ];
 
@@ -83,12 +98,16 @@ export default function LandingPage() {
 
   useEffect(() => {
     Promise.allSettled([
-      fetch("https://chatterly-backend-8dwx.onrender.com/health", { cache: "no-cache" }),
-      fetch("https://chatterly-agentic-d4ai.onrender.com/health", { cache: "no-cache" }),
-    ]).then(results => {
-      console.log("Server health:", results)
-    })
-  }, [])
+      fetch("https://chatterly-backend-8dwx.onrender.com/health", {
+        cache: "no-cache",
+      }),
+      fetch("https://chatterly-agentic-d4ai.onrender.com/health", {
+        cache: "no-cache",
+      }),
+    ]).then((results) => {
+      console.log("Server health:", results);
+    });
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -298,10 +317,11 @@ export default function LandingPage() {
                 <button
                   key={index}
                   onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentTestimonial
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentTestimonial
                       ? "bg-purple-600 scale-125"
                       : "bg-purple-200 hover:bg-purple-400"
-                    }`}
+                  }`}
                 />
               ))}
             </div>
