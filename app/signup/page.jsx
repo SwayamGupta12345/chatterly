@@ -54,7 +54,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     setError("");
     if (!agreed) {
       setError("You must agree to the Terms of Use and Privacy Policy.");
@@ -116,12 +116,12 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center p-2.5">
       <div className="w-full max-w-md">
         {/* Back to Home */}
         <Link
           href="/"
-          className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-8 transition-colors"
+          className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-4 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
@@ -130,7 +130,7 @@ export default function SignupPage() {
         {/* Signup Card */}
         <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-white/20 shadow-xl">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-4">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center">
                 <img
@@ -143,9 +143,7 @@ export default function SignupPage() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
               Join ChatterlyAI
             </h1>
-            <p className="text-gray-600">
-              Create your account and start learning
-            </p>
+            <p className="text-gray-600">Create your account to get started</p>
           </div>
 
           {/* Error Message */}
@@ -154,9 +152,34 @@ export default function SignupPage() {
               {error}
             </div>
           )}
+          {/* Google login */}
+          <div className="my-2 text-center">
+            <button
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading}
+              className="w-full bg-white border border-gray-400 text-gray-700 py-3 rounded-xl font-medium hover:shadow-xl hover:shadow-gray-300/70 transition-all duration-300 flex items-center justify-center"
+            >
+              {isGoogleLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Signing In...
+                </div>
+              ) : (
+                <>
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png"
+                    alt="Google"
+                    className="w-5 h-5 mr-2"
+                  />
+                  Continue with Google
+                </>
+              )}
+            </button>
+            <p className="text-gray-500 mt-4 mb-2">or sign up with</p>
+          </div>
 
           {/* Signup Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 mb-2">
             <div>
               <label
                 htmlFor="email"
@@ -310,7 +333,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading || !agreed}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 mt-0 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -323,33 +346,8 @@ export default function SignupPage() {
             </button>
           </form>
 
-          {/* Google login */}
-          <div className="my-6 text-center">
-            <p className="text-gray-500 mb-2">or sign up with</p>
-            <button
-              onClick={handleGoogleLogin}
-              disabled={isGoogleLoading}
-              className="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:shadow transition-all duration-300 flex items-center justify-center"
-            >
-              {isGoogleLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Signing In...
-                </div>
-              ) : (
-                <>
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png"
-                    alt="Google"
-                    className="w-5 h-5 mr-2"
-                  />
-                  Continue with Google
-                </>
-              )}
-            </button>
-          </div>
           {/* Login Link */}
-          <div className="text-center mt-8">
+          <div className="text-center mt-4">
             <p className="text-gray-600">
               Already have an account?{" "}
               <Link
