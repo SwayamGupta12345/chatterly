@@ -15,6 +15,7 @@ import {
   Edit,
   Trash2,
   Pin,
+  UserPlus,
 } from "lucide-react";
 import { TiPinOutline } from "react-icons/ti";
 import Link from "next/link";
@@ -843,25 +844,16 @@ function ChatPageInner() {
               <MessageCircleMore className="w-5 h-5" />
               <span>Chat with Friends</span>
             </Link>
-            {/* <Link
-              href="https://v0.dev/"
-              className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-            >
-              <Sparkles className="w-5 h-5" />
-              <span>Webapp Builder</span>
-            </Link> */}
-            {/* <button
-              onClick={handleNewChat}
-              className="w-full text-left px-4 py-2 mb-2 bg-green-100 text-green-700 hover:bg-green-200 rounded-xl transition-colors"
-            >
-              ➕ New Friend Chat
-            </button> */}
+            <hr className="border-t-2 border-gray-400 rounded-full my-4 shadow-sm" />
             <button
               onClick={openAddFriendModal}
-              className="w-full text-left px-4 py-2 mb-2 bg-green-100 text-green-700 hover:bg-green-200 rounded-xl transition-colors"
+              className="w-full text-left px-4 py-2 mb-2 bg-green-100 text-green-700 hover:bg-green-200 rounded-xl transition-colors flex items-center space-x-3"
             >
-              ➕ New Friend Chat
+              {/* Assuming UserPlus is a React component that renders an SVG icon */}
+              <UserPlus className="w-5 h-5" />
+              <span>New Friend Chat</span>
             </button>
+            <hr className="border-t-2 border-gray-400 rounded-full mb-3 my-4 shadow-sm" />
             {/* <Link href="/profile" className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
               <User className="w-5 h-5" />
               <span>Profile</span>
@@ -869,6 +861,12 @@ function ChatPageInner() {
             {/* {friends.map((frnd, i) => (
           <button */}
             <AnimatePresence>
+              {friends.length === 0 && (
+                <p className="text-xs text-gray-400 px-4 italic py-2">
+                  No previous chats
+                </p>
+              )}
+
               {friends.map((frnd) => (
                 <div key={frnd.chatbox_id} className="relative group">
                   {editingFriendId === frnd.chatbox_id ? (
@@ -1048,15 +1046,9 @@ function ChatPageInner() {
                   <Menu className="w-6 h-6" />
                 )}
               </button>
-              {/* <Link
-                href="/dashboard"
-                className="flex items-center text-purple-600 hover:text-purple-700 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Back to Dashboard
-              </Link> */}
-              <h1 className="text-2xl font-bold text-gray-800">
-                Chat with Friends
+              <h1 class="text-2xl font-bold text-gray-800 flex items-center space-x-3">
+                <MessageCircleMore class="w-6 h-6" />
+                <span>Chat with Friends</span>
               </h1>
             </div>
 
