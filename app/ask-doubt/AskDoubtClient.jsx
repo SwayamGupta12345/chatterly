@@ -309,8 +309,8 @@ export default function AskDoubtClient() {
 
       const imgData = await imgRes.json();
       const base64Image = imgData.image;
-      console.log("BASE64 IMAGE:", base64Image);
-      console.log("image DATA:", imgData);
+      // console.log("BASE64 IMAGE:", base64Image);
+      // console.log("image DATA:", imgData);
 
       // 5️⃣ Save AI message (backend uploads to Cloudinary)
       const aiSave = await fetch("/api/Save-Message", {
@@ -324,7 +324,7 @@ export default function AskDoubtClient() {
           image: base64Image,
         }),
       });
-      console.log("AI SAVE RESPONSE:", aiSave);
+      // console.log("AI SAVE RESPONSE:", aiSave);
 
       const { insertedId: aiResponseId, imageUrl } = await aiSave.json();
 
@@ -335,9 +335,9 @@ export default function AskDoubtClient() {
         imageUrl: imageUrl,
         isImg: true,
       };
-      console.log("AI MESSAGE:", aiMessage);
+      // console.log("AI MESSAGE:", aiMessage);
       setMessages((prev) => [...prev, aiMessage]);
-      console.log("IMAGE URL:", imageUrl);
+      // console.log("IMAGE URL:", imageUrl);
       // 🔥 FIXED socket emit → uses Cloudinary URL
       socket.current.emit("send-message", {
         roomId: convoId,
@@ -360,7 +360,7 @@ export default function AskDoubtClient() {
 
       await fetchUserChats();
     } catch (err) {
-      console.error("IMAGE GEN ERROR:", err);
+      // console.error("IMAGE GEN ERROR:", err);
       setMessages((prev) => [
         ...prev,
         {
@@ -384,7 +384,7 @@ export default function AskDoubtClient() {
         if (!res.ok) throw new Error("Failed to fetch");
 
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         // Flatten messages for UI, always use imageUrl
         const formatted = data.messages.flatMap((pair) => [
           {
@@ -409,7 +409,7 @@ export default function AskDoubtClient() {
             : [{ text: "Start A Conversation", role: "system", isImg: false }]
         );
       } catch (err) {
-        console.error("Failed to load conversation", err);
+        // console.error("Failed to load conversation", err);
         setMessages([
           { text: "Start A Conversation", role: "system", isImg: false },
         ]);
@@ -468,7 +468,7 @@ export default function AskDoubtClient() {
         }
       );
 
-      console.log("AI RESPONSE:", aiRes);
+      // console.log("AI RESPONSE:", aiRes);
       const aiText = aiRes?.data?.response || "Unexpected response format.";
       const aiMessage = { role: "bot", text: aiText };
 
@@ -517,7 +517,7 @@ export default function AskDoubtClient() {
 
       await fetchUserChats(); // Refresh chat list to reflect any changes in chat names
     } catch (err) {
-      console.error("Error sending message:", err);
+      // console.error("Error sending message:", err);
       setError("Something went wrong. Try again.");
       setMessages((prev) => [
         ...prev,
@@ -554,7 +554,7 @@ export default function AskDoubtClient() {
         alert(data.message || "Failed to create chat");
       }
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       alert("Something went wrong while creating chat.");
     }
   };
@@ -594,7 +594,7 @@ export default function AskDoubtClient() {
         sendToWhatsApp(fullMessage);
       }
 
-      alert("Chat shared successfully!");
+      // alert("Chat shared successfully!");
       setShowShare(false);
       setShared(true);
       setSearchQuery("");
@@ -602,7 +602,7 @@ export default function AskDoubtClient() {
       setSelectedUser("");
       setShareMessage("");
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       alert(err.message || "Something went wrong");
     }
   };
@@ -803,7 +803,7 @@ export default function AskDoubtClient() {
         }),
       });
     } catch (err) {
-      console.error("Error resending message:", err);
+      // console.error("Error resending message:", err);
       setError("Something went wrong. Try again.");
 
       // 4️⃣ Show error response in UI
@@ -847,7 +847,7 @@ export default function AskDoubtClient() {
         alert("Edit failed: " + result.message);
       }
     } catch (err) {
-      console.error("Error editing message:", err);
+      // console.error("Error editing message:", err);
       alert("Something went wrong.");
     }
 
@@ -876,9 +876,9 @@ export default function AskDoubtClient() {
           convoId,
         }),
       });
-      console.log("Deleted completely");
+      // console.log("Deleted completely");
     } catch (err) {
-      console.error("Delete failed:", err);
+      // console.error("Delete failed:", err);
     }
   };
 
@@ -944,7 +944,7 @@ export default function AskDoubtClient() {
 
       if (!res.ok) throw new Error("Failed to delete chat");
     } catch (err) {
-      console.error("Delete failed:", err);
+      // console.error("Delete failed:", err);
       alert("Error deleting chat. Reverting changes.");
       setUser_ai_chats((prev) => [...prev, chat]);
     }
@@ -966,7 +966,7 @@ export default function AskDoubtClient() {
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      console.warn("Speech Recognition not supported in this browser.");
+      // console.warn("Speech Recognition not supported in this browser.");
       return;
     }
 

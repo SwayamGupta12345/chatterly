@@ -53,7 +53,7 @@ export async function POST(req) {
   const result = await db.collection("chatboxes").insertOne(chatbox);
   const insertedId = result.insertedId;
 
-  console.log(`Friend Name: {friendName}, Friend Nickname: {friend.nickname}`);
+  //console.log(`Friend Name: {friendName}, Friend Nickname: {friend.nickname}`);
   // ✅ Update both users' frnd_arr with new structure
   const friendEntryForUser = {
     chatbox_id: insertedId,
@@ -62,7 +62,7 @@ export async function POST(req) {
     lastModified: new Date(),
   };
   const me = await db.collection("users").findOne({ email: userEmail });
-  console.log(`user Name: {me.Name}, user Nickname: {me.nickname}`);
+  //console.log(`user Name: {me.Name}, user Nickname: {me.nickname}`);
 
   const friendEntryForFriend = {
     chatbox_id: insertedId,

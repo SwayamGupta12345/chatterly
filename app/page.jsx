@@ -105,7 +105,7 @@ export default function LandingPage() {
         cache: "no-cache",
       }),
     ]).then((results) => {
-      console.log("Server health:", results);
+      // console.log("Server health:", results);
     });
   }, []);
 

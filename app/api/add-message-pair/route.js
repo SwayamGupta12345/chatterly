@@ -41,7 +41,7 @@
 //       modifiedCount: result.modifiedCount,
 //     });
 //   } catch (error) {
-//     console.error("Error adding message pair:", error);
+//     //console.error("Error adding message pair:", error);
 //     return NextResponse.json({ error: "Server error" }, { status: 500 });
 //   }
 // }
@@ -111,7 +111,7 @@
 //           );
 //           } catch (err) {
 //     if (err.code === 'ECONNRESET') {
-//       console.warn("ECONNRESET, retrying in 2s...");
+//       //console.warn("ECONNRESET, retrying in 2s...");
 //       await new Promise((res) => setTimeout(res, 2000));
 //       return await axios.post("process.env.AGENTIC_BACKEND + "/chat", {
 //         user_id: "Name Maker",
@@ -122,7 +122,7 @@
 //   }
 
 //           raw = renameRes.data?.response;
-//           console.log("Rename response:", raw);
+//           //console.log("Rename response:", raw);
 //           // Match the title field from anywhere in the string
 //           const match = raw?.match(/"title"\s*:\s*"([^"]{2,35}?)"/i); // Grab up to 100 characters after title
 //           let title="";
@@ -131,12 +131,12 @@
 //           }
 //           if (match && match[1]) {
 //             title = match[1];
-//             console.log("Extracted title:", title);
+//             //console.log("Extracted title:", title);
 //           } else {
-//             console.warn("Title not found in response string.");
+//             //console.warn("Title not found in response string.");
 //             title = "Untitled Chat";
 //           }
-//           console.log("Generated title:", title);
+//           //console.log("Generated title:", title);
 //           if (title) {
 //             // Step 4: Update `chats` collection with the new title
 //             await db
@@ -147,7 +147,7 @@
 //               );
 //           }
 //         } catch (err) {
-//           console.error("Failed to rename chat:", err);
+//           //console.error("Failed to rename chat:", err);
 //         }
 //       }
 //     }
@@ -157,7 +157,7 @@
 //       modifiedCount: updateResult.modifiedCount,
 //     });
 //   } catch (error) {
-//     console.error("Error adding message pair:", error);
+//     //console.error("Error adding message pair:", error);
 //     return NextResponse.json({ error: "Server error" }, { status: 500 });
 //   }
 // }
@@ -200,7 +200,7 @@ export async function POST(req) {
 
     // Step 3: If it's the first message pair, generate a title
     if (conversation?.messages?.length === 1) {
-      console.log("First message pair added, generating chat title...");
+      // console.log("First message pair added, generating chat title...");
       const messagesCollection = db.collection("messages");
 
       const userMessage = await messagesCollection.findOne({
@@ -248,7 +248,7 @@ export async function POST(req) {
           }
         }
         const raw = renameRes.data?.response;
-        console.log("Rename response:", raw);
+        // console.log("Rename response:", raw);
 
         // Extract the title from string using regex
         const match = raw?.match(/"title"\s*:\s*"([^"]{2,35}?)"/i);
@@ -256,14 +256,14 @@ export async function POST(req) {
 
         if (match && match[1]) {
           title = match[1];
-          console.log("Extracted title:", title);
+          //console.log("Extracted title:", title);
         } else {
-          console.warn("Title not found in response string.");
+          //console.warn("Title not found in response string.");
           title = "Untitled Chat";
         }
 
         if (title) {
-          console.log("Generated title:", title);
+          //console.log("Generated title:", title);
           await db.collection("chats").updateOne(
             { convoId: new ObjectId(convoId) },
             {
@@ -275,7 +275,7 @@ export async function POST(req) {
           );
         }
       } catch (err) {
-        console.error("Failed to rename chat:", err.message || err);
+        //console.error("Failed to rename chat:", err.message || err);
       }
     }
 
@@ -284,7 +284,7 @@ export async function POST(req) {
       modifiedCount: updateResult.modifiedCount,
     });
   } catch (error) {
-    console.error("Error adding message pair:", error);
+    //console.error("Error adding message pair:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
