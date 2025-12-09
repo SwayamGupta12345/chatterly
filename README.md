@@ -48,7 +48,7 @@ https://github.com/SwayamGupta12345/chatterly-agentic
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/rishugoyal805/ChatterlyAI.git
+git clone https://github.com/SwayamGupta12345/ChatterlyAI.git
 cd ChatterlyAI
 npm install    
 ```
@@ -62,6 +62,7 @@ npm run dev
 ---
 
 ## 🧩 Contributing
+Contributions are welcome!  
 Start here → [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md)
 
 If you're new:
@@ -70,7 +71,6 @@ If you're new:
 - Ask questions in Issues
 
 ---
-
 ## 🗺 Roadmap
 See → [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
