@@ -1956,7 +1956,7 @@ export default function AskDoubtClient() {
                                   className="flex items-center gap-1 text-gray-600 hover:text-purple-600 transition"
                                 >
                                   <FaCopy className="w-4 h-4" />
-                                  <span className="text-sm">Copy</span>
+                                  <span className="hidden xs:inline">Copy</span>
                                 </button>
                                 {/* WhatsApp */}
                                 <button
@@ -1965,7 +1965,7 @@ export default function AskDoubtClient() {
                                   className="flex items-center gap-1 text-green-600 hover:text-green-700 transition"
                                 >
                                   <FaWhatsapp className="w-4 h-4" />
-                                  <span className="text-sm">WhatsApp</span>
+                                  <span className="hidden xs:inline">WhatsApp</span>
                                 </button>
                                 {/* Gmail */}
                                 <button
@@ -1978,7 +1978,7 @@ export default function AskDoubtClient() {
                                     alt="Gmail"
                                     className="w-4 h-4"
                                   />
-                                  <span className="text-sm">Gmail</span>
+                                  <span className="hidden xs:inline" >Gmail</span>
                                 </button>
                                 {/* Speak / Pause */}
                                 <button
@@ -2002,7 +2002,7 @@ export default function AskDoubtClient() {
                                     <FaVolumeUp className="w-4 h-4" />
                                   )}
 
-                                  <span className="text-sm">
+                                  <span >
                                     {isPaused
                                       ? "Resume"
                                       : isSpeaking
