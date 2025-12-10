@@ -153,19 +153,7 @@ export default function LandingPage() {
               </span>
             </div>
 
-            <div className="hidden md:flex items-center space-x-8">
-              {/* <a
-                  href="#features"
-                  className="text-gray-700 hover:text-purple-600 transition-colors"
-                >
-                  Features
-                </a> */}
-              {/* <a
-                  href="#testimonials"
-                  className="text-gray-700 hover:text-purple-600 transition-colors"
-                >
-                  Testimonials
-                </a> */}
+            <div className="hidden xs:flex items-center space-x-8">
               <Link
                 href="/login"
                 className="text-purple-600 hover:text-purple-700 transition-colors"
@@ -178,35 +166,22 @@ export default function LandingPage() {
               >
                 Get Started
               </Link>
-              <div className="flex items-center gap-4">
-                <button
-                  className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-purple-100 transition-all duration-200 group"
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  title={isSidebarOpen ? "Hide features" : "Show features"}
-                >
-                  {isSidebarOpen ? (
-                    <PanelLeftClose className="w-5 h-5 text-purple-600 group-hover:text-purple-700" />
-                  ) : (
-                    <PanelLeftOpen className="w-5 h-5 text-purple-600 group-hover:text-purple-700" />
-                  )}
-                </button>
 
-                {/* Mobile: Menu button */}
-                <button
-                  className="md:hidden"
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                  {isMenuOpen ? (
-                    <X className="w-6 h-6" />
-                  ) : (
-                    <Menu className="w-6 h-6" />
-                  )}
-                </button>
-              </div>
+              <button
+                className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-purple-100 transition-all duration-200 group"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                title={isSidebarOpen ? "Hide features" : "Show features"}
+              >
+                {isSidebarOpen ? (
+                  <PanelLeftClose className="w-5 h-5 text-purple-600 group-hover:text-purple-700" />
+                ) : (
+                  <PanelLeftOpen className="w-5 h-5 text-purple-600 group-hover:text-purple-700" />
+                )}
+              </button>
             </div>
 
             <button
-              className="md:hidden"
+              className="xs:hidden flex"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? (
@@ -222,18 +197,6 @@ export default function LandingPage() {
         {isMenuOpen && (
           <div className="md:hidden bg-white/90 backdrop-blur-md border-t border-white/20">
             <div className="px-4 py-4 space-y-4">
-              {/* <a
-                  href="#features"
-                  className="block text-gray-700 hover:text-purple-600"
-                >
-                  Features
-                </a>
-                <a
-                  href="#testimonials"
-                  className="block text-gray-700 hover:text-purple-600"
-                >
-                  Testimonials
-                </a> */}
               <Link
                 href="/login"
                 className="flex justify-center text-purple-600"
@@ -250,43 +213,6 @@ export default function LandingPage() {
           </div>
         )}
       </nav>
-
-      {/* Hero Section */}
-      {/* <section className="pt-32 pb-10 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <div className="animate-fade-in-up">
-              <h1 className="text-5xl md:text-7xl font-bold pb-2  mb-6 pt-6 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
-                Lets chat with friends
-                <br />
-                and AI altogether
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                This is a student-built AI Project. No personal information is
-                stored or shared. This is a student-built AI Project. No personal
-                information is stored or shared.
-              </p>
-              <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Join thousands of people who are revolutionizing their Working
-                experience with collaborative AI assistance with friends.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Link
-                  href="/signup"
-                  className="group bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center"
-                >
-                  Start Today
-                  <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="#features"
-                  className="text-purple-600 px-8 py-4 rounded-full text-lg font-semibold border-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-300"
-                >
-                  Explore Features
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section> */}
       <div className="flex-1 flex pt-16">
         {/* SIDEBAR – visible only on lg+ */}
         {isSidebarOpen && (
@@ -356,8 +282,7 @@ export default function LandingPage() {
         >
           <div
             className={`flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-3 pb-10
-            ${isSidebarOpen ? "lg:w-[77%]" : "w-full mt-20"} ease-in-out` 
-            }
+            ${isSidebarOpen ? "lg:w-[77%]" : "w-full mt-20"} ease-in-out`}
           >
             <div className="text-center space-y-10 animate-fade-in-up">
               <div className="animate-fade-in-up">
@@ -471,7 +396,7 @@ export default function LandingPage() {
         </section>
       )}
 
-      <footer className="bg-gradient-to-r from-gray-900 to-purple-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+      <footer className="bg-gradient-to-r from-purple-900 to-purple-800 text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
