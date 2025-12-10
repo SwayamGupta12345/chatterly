@@ -6,8 +6,7 @@
 ChatterlyAI is a full-stack AI chat system built with a **Next.js frontend** and **three independent backend services**, deployed separately due to platform constraints (Vercel + Render free tiers).
 
 # Project Screenshots
-
-![Main Screenshot](https://github.com/user-attachments/assets/61068eee-f25d-4bf7-8c5f-70d39a1365c0)
+![Homepage](https://github.com/user-attachments/assets/cb131514-0eec-4562-832b-7e54c380f48b)
 ![Dashboard](https://github.com/user-attachments/assets/71457101-7da0-49bf-a953-b975b1859be9)
 ![Features](https://github.com/user-attachments/assets/41424310-4d60-4183-8a9c-180cb6e73337)
 ![AI Text](https://github.com/user-attachments/assets/ec9efbe3-b2b2-4a11-9d4d-1ed062fc7f9a)
@@ -27,7 +26,7 @@ This repository contains:
 - Links to all backend microservices
 - Setup guides for contributors
 
-Live App → https://Chatterlyai.vercel.app
+Live App → https://chatterlyai.vercel.app
 
 ---
 
@@ -37,9 +36,9 @@ ChatterlyAI consists of **4 repositories working together**:
 | Service | Repo Link | Tech | Deploy |
 |--------|-----------|------|--------|
 | Frontend (Main) | https://github.com/SwayamGupta12345/ChatterlyAI | Next.js | Vercel |
-| Backend API | https://github.com/SwayamGupta12345/ChatterlyAI-backend | Node.js | Render |
-| Secondary Backend | https://github.com/SwayamGupta12345/ChatterlyAI-backend-2 | Node.js | Render |
-| Agentic Backend | https://github.com/SwayamGupta12345/ChatterlyAI-agentic | Python/CrewAI | Render |
+| Backend API | https://github.com/SwayamGupta12345/ChatterlyAI_Backend_1 | Node.js | Render |
+| Secondary Backend | https://github.com/SwayamGupta12345/ChatterlyAI_Backend_2 | Node.js | Render |
+| Agentic Backend | https://github.com/SwayamGupta12345/ChatterlyAI_Agentic | Python/CrewAI | Render |
 
 Full architecture → [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 
@@ -50,17 +49,17 @@ Full architecture → [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 If you want to run everything locally, start the services in this order: Backend 1 → Backend 2 → Agentic → Frontend.
 
 ### 1. Start Backend 1  
-Follow instructions here: https://github.com/SwayamGupta12345/ChatterlyAI-backend
+Follow instructions here: https://github.com/SwayamGupta12345/ChatterlyAI_Backend_1
 Can run on localhost: 3001
 Follow repo instructions: npm install → npm run dev → node server-socket.js
 
 ### 2. Start Backend 2  
-Follow instructions here: https://github.com/SwayamGupta12345/ChatterlyAI-backend-2
+Follow instructions here: https://github.com/SwayamGupta12345/ChatterlyAI_Backend_2
 Can run on localhost: 3002
 Follow repo instructions: npm install → npm run dev → node server-socket.js
 
 ### 3. Start Agentic Service 
-Follow instructions here: https://github.com/SwayamGupta12345/ChatterlyAI-agentic
+Follow instructions here: https://github.com/SwayamGupta12345/ChatterlyAI_Agentic
 Can run on localhost: 8080
 Follow repo instructions: pip install -r requirements.txt → uvicorn backend:app 8080 --reload
 
