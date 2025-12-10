@@ -51,69 +51,40 @@ export default function LandingPage() {
         "Get help with coding, debugging, and algorithm explanations using AI.",
     },
     {
-      icon: IoShieldCheckmarkOutline, 
+      icon: IoShieldCheckmarkOutline,
       title: "Privacy & Security",
       description:
         "All user data stays private with end-to-end encrypted sessions and local storage.",
     },
   ];
 
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "Computer Science Student",
-      content:
-        "ChatterlyAI transformed my study routine. The collaborative doubt-solving feature is incredible!",
-      rating: 5,
-    },
-    {
-      name: "Alex Rodriguez",
-      role: "Engineering Student",
-      content:
-        "The organized notes and resources saved me countless hours during exam preparation.",
-      rating: 5,
-    },
-    {
-      name: "Priya Sharma",
-      role: "Medical Student",
-      content:
-        "Best educational platform I've used. The community support is amazing!",
-      rating: 5,
-    },
-  ];
-
   // useEffect(() => {
-  //   void Promise.all([
+  //   Promise.allSettled([
   //     fetch("https://chatterly-backend-8dwx.onrender.com/health", {
-  //       cache: "no-cache",
-  //     }),
-  //     fetch("https://chatterly-agentic-d4ai.onrender.com/health", {
   //       cache: "no-cache",
   //     }),
   //     fetch("https://chatterly-agentic-d4ai.onrender.com/ping", {
   //       cache: "no-cache",
   //     }),
-  //   ]).catch(console.error);
+  //   ]).then((results) => {
+  //     // console.log("Server health:", results);
+  //   });
   // }, []);
-
   useEffect(() => {
-    Promise.allSettled([
-      fetch("https://chatterly-backend-8dwx.onrender.com/health", {
-        cache: "no-cache",
-      }),
-      fetch("https://chatterly-agentic-d4ai.onrender.com/health", {
-        cache: "no-cache",
-      }),
-    ]).then((results) => {
-      // console.log("Server health:", results);
+    const urls = [
+      `${process.env.NEXT_PUBLIC_CHAT_SOCKET_BACKEND_URL}/health`,
+      `${process.env.NEXT_PUBLIC_AGENTIC_BACKEND_URL}/ping`,
+      `${process.env.NEXT_PUBLIC_AI_SOCKET_BACKEND_URL}/health`,
+    ];
+
+    urls.forEach((u) => {
+      try {
+        navigator.sendBeacon(u);
+      } catch {
+        // fallback (still async, no blocking)
+        fetch(u, { method: "POST", keepalive: true }).catch(() => {});
+      }
     });
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 4000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -192,7 +163,10 @@ export default function LandingPage() {
               >
                 Testimonials
               </a> */}
-              <Link href="/login" className="flex justify-center text-purple-600">
+              <Link
+                href="/login"
+                className="flex justify-center text-purple-600"
+              >
                 Login
               </Link>
               <Link
@@ -277,57 +251,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      {/* <section
-        id="testimonials"
-        className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-purple-100 to-blue-100"
-      >
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-16 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            What People Say
-          </h2>
-
-          <div className="relative">
-            <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/20 shadow-xl">
-              <div className="flex justify-center mb-6">
-                {[...Array(testimonials[currentTestimonial].rating)].map(
-                  (_, i) => (
-                    <Star
-                      key={i}
-                      className="w-6 h-6 text-yellow-400 fill-current"
-                    />
-                  )
-                )}
-              </div>
-              <blockquote className="text-xl md:text-2xl text-gray-700 mb-8 leading-relaxed">
-                "{testimonials[currentTestimonial].content}"
-              </blockquote>
-              <div>
-                <div className="font-bold text-lg text-gray-800">
-                  {testimonials[currentTestimonial].name}
-                </div>
-                <div className="text-purple-600">
-                  {testimonials[currentTestimonial].role}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-center mt-8 space-x-2">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentTestimonial
-                      ? "bg-purple-600 scale-125"
-                      : "bg-purple-200 hover:bg-purple-400"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section> */}
       <footer className="bg-gradient-to-r from-gray-900 to-purple-900 text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
@@ -343,8 +266,8 @@ export default function LandingPage() {
                 <span className="text-xl font-bold">ChatterlyAI</span>
               </div>
               <p className="text-gray-300 mb-6 max-w-md">
-                Empowering people worldwide with collaborative AI assistance
-                and chat system with friends for better and more effective
+                Empowering people worldwide with collaborative AI assistance and
+                chat system with friends for better and more effective
                 collaboration.
               </p>
               <div className="text-sm text-gray-400 space-y-1">
