@@ -1,7 +1,7 @@
 // Dashoard Page
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Plus,
   Search,
@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [userEmail, setUserEmail] = useState("");
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("friends");
+  const sidebarRef = useRef(null);
   useEffect(() => {
     const fetchSession = async () => {
       const session = await getSession();
@@ -110,37 +111,60 @@ export default function Dashboard() {
       console.error("Logout failed", err);
     }
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target) &&
+        !event.target.closest("button") // ignore clicks on the toggle button
+      ) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    if (isSidebarOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSidebarOpen]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
       {/* Sidebar */}
       <div
+        ref={sidebarRef}
         className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >
-        <div className="p-6">
-          <div className="flex items-center space-x-2 mb-8 py-3 px-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <img
-                src="/chatterly_logo.png"
-                alt="logo"
-                className="w-full h-full object-cover rounded-md"
-              />
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                <img
+                  src="/chatterly_logo.png"
+                  alt="logo"
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                ChatterlyAI
+              </span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              ChatterlyAI
-            </span>
-          </div>
 
+            {/* Close button pushed to the right */}
+            <div className="flex-1 flex justify-end lg:hidden">
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="p-1 hover:bg-gray-200 rounded-md"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          </div>
           <nav className="space-y-2">
             <Link
               href="/dashboard"

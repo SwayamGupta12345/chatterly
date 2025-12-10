@@ -240,7 +240,7 @@ function ChatPageInner() {
       socket.current.on("user-online-status", ({ email, isOnline }) => {
         setOnlineMap((prev) => ({
           ...prev,
-          [email]: isOnline, 
+          [email]: isOnline,
         }));
       });
 
@@ -730,19 +730,18 @@ function ChatPageInner() {
       body: JSON.stringify({
         senderEmail: userEmail,
         roomId: chatboxId,
-        text: input
+        text: input,
       }),
     });
-    
-    const result = await res.json();
-    if(res.ok && result.success){
 
+    const result = await res.json();
+    if (res.ok && result.success) {
       const message = {
         senderEmail: userEmail,
         roomId: chatboxId,
         text: input,
       };
-  
+
       socket.current.emit("send-message", message);
       setInput("");
       setFriends((prevFriends) => {
@@ -754,14 +753,13 @@ function ChatPageInner() {
 
         const sorted = updated.sort((a, b) => {
           if (a.pinned && !b.pinned) return -1;
-          if (!a.pinned && b.pinned) return 1; 
+          if (!a.pinned && b.pinned) return 1;
           return new Date(b.lastModified) - new Date(a.lastModified);
         });
         return sorted;
       });
-    }
-    else{
-      alert("Failed to send message.")
+    } else {
+      alert("Failed to send message.");
     }
   };
 
@@ -875,8 +873,9 @@ function ChatPageInner() {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0`}
+        className={`fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-md border-r border-white/20 z-50 transform transition-transform duration-300 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
@@ -991,13 +990,15 @@ function ChatPageInner() {
                         setEditingFriendId(frnd.chatbox_id);
                         setEditedFriendName(frnd.name || "");
                       }}
-                      className={`w-full text-left px-4 py-2 rounded-xl transition-colors transform duration-300 ${selectedFriend?.chatbox_id === frnd.chatbox_id
-                        ? "bg-purple-200 text-purple-800"
-                        : "hover:bg-gray-100 text-gray-700"
-                        } ${updatedChatboxId === frnd.chatbox_id
+                      className={`w-full text-left px-4 py-2 rounded-xl transition-colors transform duration-300 ${
+                        selectedFriend?.chatbox_id === frnd.chatbox_id
+                          ? "bg-purple-200 text-purple-800"
+                          : "hover:bg-gray-100 text-gray-700"
+                      } ${
+                        updatedChatboxId === frnd.chatbox_id
                           ? "scale-[1.03] shadow-md"
                           : ""
-                        }`}
+                      }`}
                     >
                       <span className="block truncate max-w-[75%]  items-center gap-1">
                         {/* <span>{frnd.name || frnd.email}</span> */}
@@ -1037,10 +1038,11 @@ function ChatPageInner() {
                           prev === frnd.chatbox_id ? null : frnd.chatbox_id
                         );
                       }}
-                      className={`p-1 rounded transition-colors ${menuOpenId === frnd.chatbox_id
-                        ? "bg-gray-200"
-                        : "hover:bg-gray-100"
-                        }`}
+                      className={`p-1 rounded transition-colors ${
+                        menuOpenId === frnd.chatbox_id
+                          ? "bg-gray-200"
+                          : "hover:bg-gray-100"
+                      }`}
                     >
                       <EllipsisVertical size={16} />
                     </button>
@@ -1177,26 +1179,31 @@ function ChatPageInner() {
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`flex ${msg.senderEmail === userEmail
-                    ? "justify-end"
-                    : "justify-start"
-                    }`}
+                  className={`flex ${
+                    msg.senderEmail === userEmail
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
                 >
                   <div
-                    className={`px-4 py-3 rounded-xl shadow-md max-w-[100vw] md:max-w-md ${msg.senderEmail === userEmail
-                      ? "bg-purple-100 rounded-br-none"
-                      : "bg-blue-100 rounded-bl-none self-start"
-                      }`}
+                    className={`px-4 py-3 rounded-xl shadow-md max-w-[100vw] md:max-w-md ${
+                      msg.senderEmail === userEmail
+                        ? "bg-purple-100 rounded-br-none"
+                        : "bg-blue-100 rounded-bl-none self-start"
+                    }`}
                   >
-                    <div className={`text-xs font-semibold text-gray-600 mb-1 ${msg.senderEmail === userEmail
-                      ? "text-right"
-                      : "text-left"
-                      }`}>
+                    <div
+                      className={`text-xs font-semibold text-gray-600 mb-1 ${
+                        msg.senderEmail === userEmail
+                          ? "text-right"
+                          : "text-left"
+                      }`}
+                    >
                       {msg.senderEmail === userEmail
                         ? "You"
                         : selectedFriend?.name ||
-                        selectedFriend?.email ||
-                        "Friend"}
+                          selectedFriend?.email ||
+                          "Friend"}
                     </div>
 
                     <div className="markdown-content text-sm text-gray-800 max-w-[90vw] md:max-w-md overflow-x-auto whitespace-pre-wrap break-words">
@@ -1239,8 +1246,9 @@ function ChatPageInner() {
 
                               return (
                                 <p
-                                  className={`mb-1 ${isShort ? "text-right" : ""
-                                    }`}
+                                  className={`mb-1 ${
+                                    isShort ? "text-right" : ""
+                                  }`}
                                 >
                                   {children}
                                 </p>
@@ -1281,8 +1289,8 @@ function ChatPageInner() {
                                       {typeof children === "string"
                                         ? children
                                         : Array.isArray(children)
-                                          ? children.join("")
-                                          : ""}
+                                        ? children.join("")
+                                        : ""}
                                     </code>
                                   </pre>
                                   <div
@@ -1449,10 +1457,11 @@ function ChatPageInner() {
                   {/* Mic toggle button */}
                   <button
                     onClick={toggleListening}
-                    className={`p-2 rounded-xl border transition ${listening
-                      ? "bg-red-500 text-white"
-                      : "bg-white text-black"
-                      }`}
+                    className={`p-2 rounded-xl border transition ${
+                      listening
+                        ? "bg-red-500 text-white"
+                        : "bg-white text-black"
+                    }`}
                   >
                     {listening ? (
                       <MicOff className="w-5 h-5" />
@@ -1504,10 +1513,11 @@ function ChatPageInner() {
                 </>
                 <button
                   onClick={sendMessage}
-                  className={`bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full transition ${!input.trim()
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:opacity-90"
-                    }`}
+                  className={`bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full transition ${
+                    !input.trim()
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:opacity-90"
+                  }`}
                 >
                   <Send className="w-4 h-4" />
                 </button>
