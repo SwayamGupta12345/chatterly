@@ -143,7 +143,7 @@ export default function SignupPage() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
               Join ChatterlyAI
             </h1>
-            <p className="text-gray-600">Create your account to get started</p>
+            <p className="text-gray-600">Create your account</p>
           </div>
 
           {/* Error Message */}

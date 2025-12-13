@@ -164,7 +164,7 @@ export default function LandingPage() {
                 href="/signup"
                 className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105"
               >
-                Get Started
+                Sign Up
               </Link>
 
               <button
@@ -207,7 +207,7 @@ export default function LandingPage() {
                 href="/signup"
                 className="block bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-full text-center"
               >
-                Get Started
+                Sign Up
               </Link>
             </div>
           </div>
@@ -317,7 +317,7 @@ export default function LandingPage() {
                   This is a student-built AI Project. No personal information is
                   stored or shared.
                 </p>
-
+{/* 
                 <p
                   className="
     text-lg md:text-xl lg:text-2xl
@@ -330,7 +330,7 @@ export default function LandingPage() {
                 >
                   Join thousands of people revolutionizing their working
                   experience with collaborative AI assistance.
-                </p>
+                </p> */}
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <Link
@@ -339,7 +339,7 @@ export default function LandingPage() {
                   px-8 py-4 rounded-full text-lg font-semibold hover:shadow-xl transition-all 
                   duration-300 transform hover:scale-105 flex items-center"
                   >
-                    Start Today
+                    Register
                     <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
 
