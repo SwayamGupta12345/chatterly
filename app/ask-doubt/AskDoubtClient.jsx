@@ -403,6 +403,7 @@ export default function AskDoubtClient() {
           {
             id: pair.user?.id || null,
             text: pair.user?.text || "[Missing User Message]",
+            senderName: pair.user?.senderName || "User",
             role: "user",
             isImg: pair.user?.isImg ?? false,
             imageUrl: pair.user?.imageUrl ?? null, // 🔥 fixed
@@ -415,7 +416,6 @@ export default function AskDoubtClient() {
             imageUrl: pair.ai?.imageUrl ?? null, // 🔥 fixed
           },
         ]);
-
         setMessages(
           formatted.length > 0
             ? formatted
@@ -1400,7 +1400,8 @@ export default function AskDoubtClient() {
         {/* Main Section */}
         <div className="flex flex-col flex-1 lg:ml-64">
           {/* Header */}
-          <header className="bg-white/70 backdrop-blur-md border-b border-white/20 px-6 py-4 sticky top-0 z-20">
+          <header className="bg-white/70 backdrop-blur-md border-b border-white/20 px-5 py-3 sm:py-3 md:py-4
+ sticky top-0 z-20">
             <div className="flex items-center justify-between">
               {/* Left section: Menu toggle + Heading + Back Link */}
               <div className="flex items-center space-x-4">
@@ -1415,7 +1416,9 @@ export default function AskDoubtClient() {
                   )}
                 </button>
                 <Lightbulb className="w-5 h-5" />
-                <h1 className=" text-sm md:text-xl lg:text-2xl font-bold text-gray-800">Chatbot</h1>
+                <h1 className="text-2xl font-bold text-gray-800">
+                  Chatbot
+                </h1>
               </div>
 
               {/* Right section: Notification + Profile */}
@@ -1629,7 +1632,7 @@ export default function AskDoubtClient() {
                           msg.role === "user" ? "text-right" : "text-left"
                         }`}
                       >
-                        {msg.role === "user" ? "You" : "Bot"}
+                        {msg.role === "user" ? `${msg.senderName}` : "ChatterlyAI"}
                       </div>
 
                       <div className="markdown-content text-sm text-gray-800 overflow-x-hidden">
@@ -1965,7 +1968,9 @@ export default function AskDoubtClient() {
                                   className="flex items-center gap-1 text-green-600 hover:text-green-700 transition"
                                 >
                                   <FaWhatsapp className="w-4 h-4" />
-                                  <span className="hidden xs:inline">WhatsApp</span>
+                                  <span className="hidden xs:inline">
+                                    WhatsApp
+                                  </span>
                                 </button>
                                 {/* Gmail */}
                                 <button
@@ -1978,7 +1983,9 @@ export default function AskDoubtClient() {
                                     alt="Gmail"
                                     className="w-4 h-4"
                                   />
-                                  <span className="hidden xs:inline" >Gmail</span>
+                                  <span className="hidden xs:inline">
+                                    Gmail
+                                  </span>
                                 </button>
                                 {/* Speak / Pause */}
                                 <button
@@ -2002,7 +2009,7 @@ export default function AskDoubtClient() {
                                     <FaVolumeUp className="w-4 h-4" />
                                   )}
 
-                                  <span >
+                                  <span>
                                     {isPaused
                                       ? "Resume"
                                       : isSpeaking
@@ -2020,7 +2027,7 @@ export default function AskDoubtClient() {
                 ))}
                 {loading && (
                   <div className="text-sm text-gray-500 animate-pulse">
-                    Bot is typing...
+                    ChatterlyAI is typing...
                   </div>
                 )}
                 {error && <div className="text-sm text-red-500">{error}</div>}
@@ -2028,7 +2035,7 @@ export default function AskDoubtClient() {
               </div>
 
               {/* Chat Input Fixed at Bottom */}
-              <div className="fixed bottom-0 left-0 right-0 lg:ml-64 bg-white/90 backdrop-blur-lg border-t border-white/20 px-6 py-4 z-40">
+              <div className="fixed bottom-0 left-0 right-0 lg:ml-64 bg-white/90 backdrop-blur-lg border-t border-white/20 px-6 py-3 z-40">
                 <div className="flex items-center gap-2 max-w-7xl mx-auto">
                   <textarea
                     ref={inputRef}
@@ -2117,6 +2124,9 @@ export default function AskDoubtClient() {
                     <Send className="w-5 h-5" />
                   </button>
                 </div>
+                <p className="text-xs text-gray-500 justify-center mt-[2px] text-center mb-0">
+                  ChatterlyAI can make mistakes. Check important info.
+                </p>
               </div>
             </div>
             {confirmDelete.show && (
